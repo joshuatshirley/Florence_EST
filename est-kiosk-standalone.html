@@ -1132,32 +1132,39 @@ window.__EST_STANDALONE__ = {
         "No saved scores yet" + (showAll ? "." : " for this recruiter.")
       ]));
     } else {
+      // Section codes/order come from QUESTIONS itself (WK, AR, PC, MK) so
+      // the table always matches whatever sections the test actually has.
+      var sectionCodes = QUESTIONS.sections.map(function (sec) { return sec.code; });
+
       var tableWrap = el("div", { class: "scores-table-wrap" });
       var table = el("table", { class: "scores-table" });
-      table.appendChild(el("thead", {}, [
-        el("tr", {}, [
-          el("th", {}, ["Name"]),
-          el("th", {}, ["Recruiter"]),
-          el("th", {}, ["Date"]),
-          el("th", {}, ["AFQT"]),
-          el("th", {}, ["VE"]),
-          el("th", {}, ["AR"]),
-          el("th", {}, ["MK"])
-        ])
-      ]));
+      var headerCells = [
+        el("th", {}, ["Name"]),
+        el("th", {}, ["Recruiter"]),
+        el("th", {}, ["Date & Time"]),
+        el("th", {}, ["AFQT"])
+      ];
+      sectionCodes.forEach(function (code) {
+        headerCells.push(el("th", {}, [code + " %"]));
+      });
+      table.appendChild(el("thead", {}, [el("tr", {}, headerCells)]));
+
       var tbody = el("tbody");
       entries.forEach(function (entry) {
         var parsedDate = new Date(entry.timestamp);
         var dateStr = isNaN(parsedDate.getTime()) ? (entry.timestamp || "—") : parsedDate.toLocaleString();
-        tbody.appendChild(el("tr", {}, [
+        var rowCells = [
           el("td", {}, [entry.name || "—"]),
           el("td", {}, [formatRecruiterDisplay(entry.recruiter) || "—"]),
           el("td", {}, [dateStr]),
-          el("td", { class: "scores-table-num" }, [String(entry.afqt)]),
-          el("td", { class: "scores-table-num" }, [String(entry.ve_score)]),
-          el("td", { class: "scores-table-num" }, [String(entry.ar_score)]),
-          el("td", { class: "scores-table-num" }, [String(entry.mk_score)])
-        ]));
+          el("td", { class: "scores-table-num" }, [String(entry.afqt)])
+        ];
+        sectionCodes.forEach(function (code) {
+          var sec = entry.sections && entry.sections[code];
+          var pct = sec && sec.total ? Math.round((100 * sec.correct) / sec.total) + "%" : "—";
+          rowCells.push(el("td", { class: "scores-table-num" }, [pct]));
+        });
+        tbody.appendChild(el("tr", {}, rowCells));
       });
       table.appendChild(tbody);
       tableWrap.appendChild(table);
