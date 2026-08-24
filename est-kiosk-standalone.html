@@ -742,7 +742,7 @@ window.__EST_STANDALONE__ = {
       state.sectionIndex = 0;
       state.answers = {};
       QUESTIONS.sections.forEach(function (s) { state.answers[s.code] = {}; });
-      startSection(0);
+      renderPreTestHandoff();
     });
     card.appendChild(el("div", { class: "btn-row" }, [startBtn]));
 
@@ -910,6 +910,17 @@ window.__EST_STANDALONE__ = {
   }
 
   // ---------- Screen: STOP ----------
+  function buildUpNextBox(sec) {
+    var parsed = parseSectionTitle(sec.title);
+    var upNext = el("div", { class: "stop-upnext" });
+    upNext.appendChild(el("div", { class: "stop-upnext-label" }, ["Up next"]));
+    upNext.appendChild(el("div", { class: "stop-upnext-name" }, [boldedName(parsed.name)]));
+    upNext.appendChild(el("div", { class: "stop-upnext-meta" }, [
+      sec.questions.length + " questions  ·  " + sec.minutes + " minutes"
+    ]));
+    return upNext;
+  }
+
   function renderStop(sec, timedOut) {
     clear(app);
     setKeyHandler(null);
@@ -928,15 +939,7 @@ window.__EST_STANDALONE__ = {
     var isLast = state.sectionIndex >= QUESTIONS.sections.length - 1;
 
     if (!isLast) {
-      var nextSec = QUESTIONS.sections[state.sectionIndex + 1];
-      var nextParsed = parseSectionTitle(nextSec.title);
-      var upNext = el("div", { class: "stop-upnext" });
-      upNext.appendChild(el("div", { class: "stop-upnext-label" }, ["Up next"]));
-      upNext.appendChild(el("div", { class: "stop-upnext-name" }, [boldedName(nextParsed.name)]));
-      upNext.appendChild(el("div", { class: "stop-upnext-meta" }, [
-        nextSec.questions.length + " questions  ·  " + nextSec.minutes + " minutes"
-      ]));
-      box.appendChild(upNext);
+      box.appendChild(buildUpNextBox(QUESTIONS.sections[state.sectionIndex + 1]));
     } else {
       box.appendChild(el("p", { class: "stop-break" }, ["That was the last section — your results are next."]));
     }
@@ -950,6 +953,34 @@ window.__EST_STANDALONE__ = {
       }
     });
     box.appendChild(el("div", { class: "btn-row" }, [nextBtn]));
+    card.appendChild(box);
+    app.appendChild(card);
+  }
+
+  // Shown right after "Start Test" is tapped, before the first section's
+  // timer starts -- gives the recruiter a beat to hand the device to the
+  // test-taker without eating into their section time (same handoff pattern
+  // as the between-section STOP screen, just before section 0 instead of
+  // after a completed one).
+  function renderPreTestHandoff() {
+    clear(app);
+    setKeyHandler(null);
+    var card = el("div", { class: "card" });
+    var box = el("div", { class: "stop-box" });
+
+    box.appendChild(el("div", { class: "stop-sign-outer" }, [
+      el("div", { class: "stop-sign" }, ["STOP"])
+    ]));
+
+    box.appendChild(el("p", { class: "stop-msg" }, ["Ready to begin, " + state.name + "."]));
+    box.appendChild(el("p", { class: "stop-break" }, [
+      "Hand the device to the test-taker now — the timer starts as soon as you tap Begin."
+    ]));
+    box.appendChild(buildUpNextBox(QUESTIONS.sections[0]));
+
+    var beginBtn = el("button", { class: "btn" }, ["Begin"]);
+    beginBtn.addEventListener("click", function () { startSection(0); });
+    box.appendChild(el("div", { class: "btn-row" }, [beginBtn]));
     card.appendChild(box);
     app.appendChild(card);
   }
