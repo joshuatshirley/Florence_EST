@@ -5,9 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="refresh" content="0; url=./est-kiosk-standalone.html">
   <title>Florence EST — Launch</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0b1b2b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Florence EST">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
 </head>
 <body>
   <p>If you are not redirected automatically, <a href="./est-kiosk-standalone.html">open the test</a>.</p>
   <p>Tip: enable GitHub Pages for this repository and the test will be available at the Pages URL (see README).</p>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(function () {});
+    }
+  </script>
 </body>
 </html>

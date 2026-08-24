@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Practice ASVAB (EST)</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0b1b2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Florence EST">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
 <style>
 :root {
   --bg: #0b1b2b;
@@ -1144,6 +1150,14 @@ window.__EST_STANDALONE__ = {
   loadData(renderStart);
 })();
 
+</script>
+<script>
+  // Registered here (not just index.html) because manifest.json's start_url
+  // points straight at this file -- Add to Home Screen launches directly
+  // into this page, skipping the redirector entirely.
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
 </script>
 </body>
 </html>
