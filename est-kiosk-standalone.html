@@ -515,21 +515,6 @@ window.__EST_STANDALONE__ = {
   var DEFAULT_RECRUITER = "3D7F";
   var RECRUITERS = ["Curless SSG", "Gatling SFC", "Guiler SFC", "Recendez SFC", "Schultz SFC", "Shirley SFC"];
 
-  // Recruiter/proctor gate: required to start a test and to leave the results
-  // screen, so a test-taker can't self-start a new attempt or clear their own
-  // score without a recruiter entering the code.
-  var PROCTOR_CODE = "1775";
-
-  function checkProctorCode(action) {
-    var entered = window.prompt("Recruiter code to " + action + ":");
-    if (entered === null) return false;
-    if (entered.trim() !== PROCTOR_CODE) {
-      alert("Incorrect code.");
-      return false;
-    }
-    return true;
-  }
-
   // Keyboard shortcuts on the question screen only: A-D/1-4 pick an answer,
   // Enter advances. Exactly one handler is ever attached -- each screen
   // render swaps it out (or clears it) so key presses never leak to a
@@ -692,8 +677,6 @@ window.__EST_STANDALONE__ = {
       }
       lastNameInput.classList.remove("input-error");
       lastNameError.classList.remove("visible");
-
-      if (!checkProctorCode("start the test")) return;
 
       var first = firstNameInput.value.trim();
       state.name = (first + " " + last).trim();
@@ -986,11 +969,90 @@ window.__EST_STANDALONE__ = {
     return { key: "critical", label: "Keep practicing" };
   }
 
+  // ---------- Local result history (cookie) ----------
+  // Every completed test is appended to a capped JSON array kept in a cookie
+  // on this browser/device -- a durable local record of name, recruiter, and
+  // scores that survives even when there's no server to POST to (see the
+  // standalone note in loadData above). This runs for BOTH builds: it's a
+  // local backup alongside the server save for the server-backed build, and
+  // the only persistence at all for a bare file:// standalone build.
+  var RESULTS_COOKIE = "est_results_history";
+  var RESULTS_COOKIE_MAX_ENTRIES = 25;
+  var RESULTS_COOKIE_MAX_DAYS = 365;
+  var RESULTS_COOKIE_MAX_BYTES = 3800; // stay under the ~4KB per-cookie ceiling
+
+  function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/; SameSite=Lax";
+  }
+
+  function getCookie(name) {
+    var prefix = name + "=";
+    var parts = document.cookie.split(";");
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i].replace(/^\s+/, "");
+      if (part.indexOf(prefix) === 0) return decodeURIComponent(part.slice(prefix.length));
+    }
+    return null;
+  }
+
+  function getResultsHistory() {
+    var raw = getCookie(RESULTS_COOKIE);
+    if (!raw) return [];
+    try {
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveResultToHistory(entry) {
+    var history = getResultsHistory();
+    history.push(entry);
+    while (history.length > RESULTS_COOKIE_MAX_ENTRIES) history.shift();
+    var serialized = JSON.stringify(history);
+    // Belt-and-suspenders: keep dropping the oldest entry if we're still
+    // near the cookie size ceiling (e.g. unusually long names).
+    while (serialized.length > RESULTS_COOKIE_MAX_BYTES && history.length > 1) {
+      history.shift();
+      serialized = JSON.stringify(history);
+    }
+    setCookie(RESULTS_COOKIE, serialized, RESULTS_COOKIE_MAX_DAYS);
+  }
+
+  // Shared shape for both the cookie history entry and the server POST body.
+  function buildResultPayload(results) {
+    var payload = {
+      name: state.name,
+      recruiter: state.recruiter,
+      timestamp: new Date().toISOString(),
+      sections: {},
+      ve_score: results.veScore,
+      ar_score: results.arScore,
+      mk_score: results.mkScore,
+      std_sum: results.stdSum,
+      afqt: results.aqft
+    };
+    Object.keys(results.byCode).forEach(function (code) {
+      var r = results.byCode[code];
+      payload.sections[code] = { correct: r.correct, total: r.total, unanswered: r.unanswered };
+    });
+    return payload;
+  }
+
   // ---------- Screen: Results ----------
   function renderResults() {
     clear(app);
     setKeyHandler(null);
     var results = computeResults();
+
+    saveResultToHistory(buildResultPayload(results));
 
     var card = el("div", { class: "card" });
     card.appendChild(el("h1", {}, ["Results"]));
@@ -1054,7 +1116,6 @@ window.__EST_STANDALONE__ = {
 
     var restartBtn = el("button", { class: "btn" }, ["Start New Test"]);
     restartBtn.addEventListener("click", function () {
-      if (!checkProctorCode("leave this score screen")) return;
       renderStart();
     });
     card.appendChild(el("div", { class: "btn-row" }, [restartBtn]));
@@ -1065,21 +1126,7 @@ window.__EST_STANDALONE__ = {
   }
 
   function saveResults(results, statusEl) {
-    var payload = {
-      name: state.name,
-      recruiter: state.recruiter,
-      timestamp: new Date().toISOString(),
-      sections: {},
-      ve_score: results.veScore,
-      ar_score: results.arScore,
-      mk_score: results.mkScore,
-      std_sum: results.stdSum,
-      afqt: results.aqft
-    };
-    Object.keys(results.byCode).forEach(function (code) {
-      var r = results.byCode[code];
-      payload.sections[code] = { correct: r.correct, total: r.total, unanswered: r.unanswered };
-    });
+    var payload = buildResultPayload(results);
 
     fetch("api/results", {
       method: "POST",
