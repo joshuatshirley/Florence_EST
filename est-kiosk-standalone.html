@@ -476,6 +476,39 @@ input.input-error {
   color: var(--muted);
 }
 
+.scores-table-wrap {
+  overflow-x: auto;
+  margin: 18px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+.scores-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.scores-table th, .scores-table td {
+  padding: 10px 14px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid #eee;
+}
+.scores-table thead th {
+  background: #f2f2f2;
+  font-weight: 700;
+}
+.scores-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.scores-table tbody tr:hover {
+  background: #f7faff;
+}
+.scores-table-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
 /* ---------- Desktop (>=700px): roomier card ---------- */
 @media (min-width: 700px) {
   .nav-row .btn {
@@ -498,6 +531,11 @@ input.input-error {
   }
 
   .overall-stat-value { font-size: 1.6rem; }
+
+  .scores-table th, .scores-table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
 }
 
 </style>
@@ -520,6 +558,9 @@ window.__EST_STANDALONE__ = {
 
   var DEFAULT_RECRUITER = "3D7F";
   var RECRUITERS = ["Curless SSG", "Gatling SFC", "Guiler SFC", "Recendez SFC", "Schultz SFC", "Shirley SFC"];
+
+  var SCORES_ACCESS_LAST = "check";
+  var SCORES_ACCESS_FIRST = "scores";
 
   // Keyboard shortcuts on the question screen only: A-D/1-4 pick an answer,
   // Enter advances. Exactly one handler is ever attached -- each screen
@@ -685,8 +726,19 @@ window.__EST_STANDALONE__ = {
       lastNameError.classList.remove("visible");
 
       var first = firstNameInput.value.trim();
+      var recruiter = recruiterSelect.value || DEFAULT_RECRUITER;
+
+      // Name/recruiter fields double as the scores-viewer entry point: typing
+      // last="check", first="scores" opens the saved-results screen instead
+      // of starting a test, scoped to whichever recruiter is selected
+      // (DEFAULT_RECRUITER = every recruiter).
+      if (last.toLowerCase() === SCORES_ACCESS_LAST && first.toLowerCase() === SCORES_ACCESS_FIRST) {
+        renderScoresScreen(recruiter);
+        return;
+      }
+
       state.name = (first + " " + last).trim();
-      state.recruiter = recruiterSelect.value || DEFAULT_RECRUITER;
+      state.recruiter = recruiter;
       state.sectionIndex = 0;
       state.answers = {};
       QUESTIONS.sections.forEach(function (s) { state.answers[s.code] = {}; });
@@ -1050,6 +1102,73 @@ window.__EST_STANDALONE__ = {
       payload.sections[code] = { correct: r.correct, total: r.total, unanswered: r.unanswered };
     });
     return payload;
+  }
+
+  // ---------- Screen: Saved scores viewer ----------
+  // Entered via the SCORES_ACCESS_LAST/FIRST name combo on the start screen
+  // (see startBtn handler). recruiter === DEFAULT_RECRUITER shows every
+  // recruiter's results; any specific recruiter value filters to just theirs.
+  function renderScoresScreen(recruiter) {
+    clear(app);
+    setKeyHandler(null);
+
+    var showAll = recruiter === DEFAULT_RECRUITER;
+    var entries = getResultsHistory().filter(function (e) {
+      return showAll || e.recruiter === recruiter;
+    });
+    entries.sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
+
+    var card = el("div", { class: "card" });
+    card.appendChild(el("h1", {}, ["Saved Scores"]));
+    card.appendChild(el("p", { class: "byline" }, [
+      showAll ? "All recruiters" : "Recruiter: " + formatRecruiterDisplay(recruiter)
+    ]));
+    card.appendChild(el("p", { class: "byline" }, [
+      entries.length + (entries.length === 1 ? " result" : " results") + " saved on this device"
+    ]));
+
+    if (!entries.length) {
+      card.appendChild(el("div", { class: "instructions-box" }, [
+        "No saved scores yet" + (showAll ? "." : " for this recruiter.")
+      ]));
+    } else {
+      var tableWrap = el("div", { class: "scores-table-wrap" });
+      var table = el("table", { class: "scores-table" });
+      table.appendChild(el("thead", {}, [
+        el("tr", {}, [
+          el("th", {}, ["Name"]),
+          el("th", {}, ["Recruiter"]),
+          el("th", {}, ["Date"]),
+          el("th", {}, ["AFQT"]),
+          el("th", {}, ["VE"]),
+          el("th", {}, ["AR"]),
+          el("th", {}, ["MK"])
+        ])
+      ]));
+      var tbody = el("tbody");
+      entries.forEach(function (entry) {
+        var parsedDate = new Date(entry.timestamp);
+        var dateStr = isNaN(parsedDate.getTime()) ? (entry.timestamp || "—") : parsedDate.toLocaleString();
+        tbody.appendChild(el("tr", {}, [
+          el("td", {}, [entry.name || "—"]),
+          el("td", {}, [formatRecruiterDisplay(entry.recruiter) || "—"]),
+          el("td", {}, [dateStr]),
+          el("td", { class: "scores-table-num" }, [String(entry.afqt)]),
+          el("td", { class: "scores-table-num" }, [String(entry.ve_score)]),
+          el("td", { class: "scores-table-num" }, [String(entry.ar_score)]),
+          el("td", { class: "scores-table-num" }, [String(entry.mk_score)])
+        ]));
+      });
+      table.appendChild(tbody);
+      tableWrap.appendChild(table);
+      card.appendChild(tableWrap);
+    }
+
+    var backBtn = el("button", { class: "btn" }, ["Back"]);
+    backBtn.addEventListener("click", function () { renderStart(); });
+    card.appendChild(el("div", { class: "btn-row" }, [backBtn]));
+
+    app.appendChild(card);
   }
 
   // ---------- Screen: Results ----------
