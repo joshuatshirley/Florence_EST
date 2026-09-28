@@ -566,6 +566,12 @@ window.__EST_STANDALONE__ = {
   var SCORES_ACCESS_LAST = "check";
   var SCORES_ACCESS_FIRST = "scores";
 
+  // Google Apps Script web app (/exec URL) that appends each result to a
+  // Sheet -- see apps-script/results-webhook.gs for the backend and setup
+  // steps. Best-effort sync on top of the local cookie history, which stays
+  // the durable record if this is empty or the device is offline.
+  var RESULTS_WEBHOOK_URL = "";
+
   // Keyboard shortcuts on the question screen only: A-D/1-4 pick an answer,
   // Enter advances. Exactly one handler is ever attached -- each screen
   // render swaps it out (or clears it) so key presses never leak to a
@@ -585,7 +591,8 @@ window.__EST_STANDALONE__ = {
     answers: {},      // answers[sectionCode][n] = "A"/"B"/"C"/"D"
     timerHandle: null,
     secondsLeft: 0,
-    finalResults: null // set once the last section ends; see renderStop/renderResults
+    finalResults: null, // set once the last section ends; see renderStop/renderResults
+    finalPayload: null  // buildResultPayload(finalResults), sent to the webhook and reused by renderResults
   };
 
   function el(tag, attrs, children) {
@@ -747,6 +754,7 @@ window.__EST_STANDALONE__ = {
       state.sectionIndex = 0;
       state.answers = {};
       state.finalResults = null;
+      state.finalPayload = null;
       QUESTIONS.sections.forEach(function (s) { state.answers[s.code] = {}; });
       renderPreTestHandoff();
     });
@@ -930,7 +938,8 @@ window.__EST_STANDALONE__ = {
     var isLast = state.sectionIndex >= QUESTIONS.sections.length - 1;
     if (isLast) {
       state.finalResults = computeResults();
-      saveResultToHistory(buildResultPayload(state.finalResults));
+      state.finalPayload = buildResultPayload(state.finalResults);
+      saveResultToHistory(state.finalPayload);
     }
     renderStop(sec, timedOut);
   }
@@ -973,6 +982,9 @@ window.__EST_STANDALONE__ = {
       box.appendChild(el("p", { class: "stop-break" }, [
         "Please return this device to your recruiter to review your scores."
       ]));
+      var syncStatus = el("p", { class: "save-status" }, [""]);
+      box.appendChild(syncStatus);
+      postResultsToWebhook(state.finalPayload, syncStatus);
     }
 
     var nextBtn = el("button", { class: "btn" }, [isLast ? "Continue to Results" : "Continue"]);
@@ -1164,6 +1176,29 @@ window.__EST_STANDALONE__ = {
       payload.sections[code] = { correct: r.correct, total: r.total, unanswered: r.unanswered };
     });
     return payload;
+  }
+
+  // Sent as text/plain (not application/json) so the browser treats it as a
+  // "simple request" and skips the CORS preflight -- Apps Script's web app
+  // endpoint issues a redirect for POST requests that a preflight can choke
+  // on. results-webhook.gs parses the body as JSON regardless of the header.
+  function postResultsToWebhook(payload, statusEl) {
+    if (!RESULTS_WEBHOOK_URL) {
+      statusEl.textContent = "Results saved on this device.";
+      return;
+    }
+    statusEl.textContent = "Syncing results...";
+    fetch(RESULTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      statusEl.textContent = (res && res.ok)
+        ? "Results synced."
+        : "Could not sync (server error) -- saved locally on this device.";
+    }).catch(function () {
+      statusEl.textContent = "Could not sync (offline?) -- saved locally on this device.";
+    });
   }
 
   // ---------- Screen: Saved scores viewer ----------
