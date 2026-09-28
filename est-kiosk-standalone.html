@@ -107,7 +107,7 @@ label.field-label {
   font-weight: 600;
   margin: 18px 0 6px;
 }
-input[type=text], select {
+input[type=text], input[type=tel], select {
   width: 100%;
   font-size: 1.1rem;
   padding: 10px 12px;
@@ -117,7 +117,7 @@ input[type=text], select {
   background: #fff;
   color: var(--ink);
 }
-input[type=text]:focus, select:focus {
+input[type=text]:focus, input[type=tel]:focus, select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(30, 77, 140, 0.15);
@@ -585,6 +585,7 @@ window.__EST_STANDALONE__ = {
 
   var state = {
     name: "",
+    phone: "",
     recruiter: DEFAULT_RECRUITER,
     sectionIndex: 0,  // index into QUESTIONS.sections
     questionIndex: 0, // index into the current section's questions
@@ -717,6 +718,10 @@ window.__EST_STANDALONE__ = {
     var firstNameInput = el("input", { type: "text", id: "firstName", placeholder: "First name" });
     card.appendChild(firstNameInput);
 
+    card.appendChild(el("label", { class: "field-label" }, ["Phone Number:"]));
+    var phoneInput = el("input", { type: "tel", id: "phone", placeholder: "Phone number" });
+    card.appendChild(phoneInput);
+
     card.appendChild(el("label", { class: "field-label" }, ["Recruiter:"]));
     var recruiterSelect = el("select", { id: "recruiterSelect" });
     recruiterSelect.appendChild(el("option", { value: DEFAULT_RECRUITER }, [DEFAULT_RECRUITER]));
@@ -750,6 +755,7 @@ window.__EST_STANDALONE__ = {
       }
 
       state.name = (first + " " + last).trim();
+      state.phone = phoneInput.value.trim();
       state.recruiter = recruiter;
       state.sectionIndex = 0;
       state.answers = {};
@@ -1162,6 +1168,7 @@ window.__EST_STANDALONE__ = {
   function buildResultPayload(results) {
     var payload = {
       name: state.name,
+      phone: state.phone,
       recruiter: state.recruiter,
       timestamp: new Date().toISOString(),
       sections: {},
@@ -1237,6 +1244,7 @@ window.__EST_STANDALONE__ = {
       var table = el("table", { class: "scores-table" });
       var headerCells = [
         el("th", {}, ["Name"]),
+        el("th", {}, ["Phone"]),
         el("th", {}, ["Recruiter"]),
         el("th", {}, ["Date & Time"]),
         el("th", {}, ["AFQT"])
@@ -1252,6 +1260,7 @@ window.__EST_STANDALONE__ = {
         var dateStr = isNaN(parsedDate.getTime()) ? (entry.timestamp || "—") : parsedDate.toLocaleString();
         var rowCells = [
           el("td", {}, [entry.name || "—"]),
+          el("td", {}, [entry.phone || "—"]),
           el("td", {}, [formatRecruiterDisplay(entry.recruiter) || "—"]),
           el("td", {}, [dateStr]),
           el("td", { class: "scores-table-num" }, [String(entry.afqt)])

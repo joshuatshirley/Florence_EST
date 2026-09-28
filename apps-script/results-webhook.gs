@@ -26,6 +26,12 @@
  * Redeploying after an edit: Deploy > Manage deployments > pick the
  * existing deployment > Edit (pencil) > New version > Deploy. This
  * keeps the same /exec URL, so the kiosk doesn't need updating.
+ *
+ * Note on HEADER_ROW: it's only written once, when the sheet is empty
+ * (see getOrCreateSheet). If you add a field to a sheet that already
+ * has rows, add the matching header cell yourself in row 1 -- new
+ * columns are appended at the END of appendResultRow specifically so
+ * this is a one-cell addition, not a reorder of existing columns.
  */
 
 var SHEET_NAME = "Results";
@@ -35,7 +41,8 @@ var HEADER_ROW = [
   "WK Correct", "WK Total", "WK Unanswered",
   "AR Correct", "AR Total", "AR Unanswered",
   "PC Correct", "PC Total", "PC Unanswered",
-  "MK Correct", "MK Total", "MK Unanswered"
+  "MK Correct", "MK Total", "MK Unanswered",
+  "Phone"
 ];
 
 function doPost(e) {
@@ -69,7 +76,8 @@ function appendResultRow(data) {
     field("WK", "correct"), field("WK", "total"), field("WK", "unanswered"),
     field("AR", "correct"), field("AR", "total"), field("AR", "unanswered"),
     field("PC", "correct"), field("PC", "total"), field("PC", "unanswered"),
-    field("MK", "correct"), field("MK", "total"), field("MK", "unanswered")
+    field("MK", "correct"), field("MK", "total"), field("MK", "unanswered"),
+    data.phone || ""
   ]);
 }
 
