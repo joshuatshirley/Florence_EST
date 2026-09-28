@@ -32,6 +32,20 @@
  * has rows, add the matching header cell yourself in row 1 -- new
  * columns are appended at the END of appendResultRow specifically so
  * this is a one-cell addition, not a reorder of existing columns.
+ *
+ * Optional "Roster" tab (each recruiter's tested applicants + phone
+ * numbers, grouped by recruiter then last name): add a new sheet tab
+ * named "Roster" and paste this into cell A1. It's a live formula, not
+ * script output -- no redeploy needed if it ever needs re-adding.
+ *
+ *   =QUERY(Results!A2:W, "select C, V, W, U, max(A), count(A) group by
+ *   C, V, W, U order by C, V, W label C 'Recruiter', V 'Last Name',
+ *   W 'First Name', U 'Phone', max(A) 'Last Tested', count(A)
+ *   'Times Tested'", 0)
+ *
+ * Column letters (C=Recruiter, V=Last Name, W=First Name, U=Phone,
+ * A=Timestamp) assume HEADER_ROW's current column order below -- if
+ * that order changes, update the letters in the formula to match.
  */
 
 var SHEET_NAME = "Results";
@@ -42,7 +56,8 @@ var HEADER_ROW = [
   "AR Correct", "AR Total", "AR Unanswered",
   "PC Correct", "PC Total", "PC Unanswered",
   "MK Correct", "MK Total", "MK Unanswered",
-  "Phone"
+  "Phone",
+  "Last Name", "First Name"
 ];
 
 function doPost(e) {
@@ -64,9 +79,15 @@ function appendResultRow(data) {
     return s && s[key] !== undefined ? s[key] : "";
   }
 
+  // The kiosk sends last_name/first_name separately (so this sheet can sort
+  // and group by last name); the "Name" column is still populated here, as
+  // a combined "First Last" display string, for continuity with rows saved
+  // before that split.
+  var displayName = ((data.first_name || "") + " " + (data.last_name || "")).trim();
+
   sheet.appendRow([
     data.timestamp || new Date().toISOString(),
-    data.name || "",
+    displayName,
     data.recruiter || "",
     data.afqt,
     data.ve_score,
@@ -77,7 +98,9 @@ function appendResultRow(data) {
     field("AR", "correct"), field("AR", "total"), field("AR", "unanswered"),
     field("PC", "correct"), field("PC", "total"), field("PC", "unanswered"),
     field("MK", "correct"), field("MK", "total"), field("MK", "unanswered"),
-    data.phone || ""
+    data.phone || "",
+    data.last_name || "",
+    data.first_name || ""
   ]);
 }
 

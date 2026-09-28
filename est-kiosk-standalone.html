@@ -584,7 +584,8 @@ window.__EST_STANDALONE__ = {
   }
 
   var state = {
-    name: "",
+    lastName: "",
+    firstName: "",
     phone: "",
     recruiter: DEFAULT_RECRUITER,
     sectionIndex: 0,  // index into QUESTIONS.sections
@@ -652,6 +653,13 @@ window.__EST_STANDALONE__ = {
     var rank = parts[parts.length - 1];
     var name = parts.slice(0, -1).join(" ");
     return rank + " " + name;
+  }
+
+  // First+Last stored separately (state.lastName/state.firstName) so the
+  // Sheet/cookie history can sort and group by last name -- this is just
+  // the "First Last" form used for on-screen greetings.
+  function displayName() {
+    return (state.firstName + " " + state.lastName).trim();
   }
 
   // ---------- Data loading ----------
@@ -754,7 +762,8 @@ window.__EST_STANDALONE__ = {
         return;
       }
 
-      state.name = (first + " " + last).trim();
+      state.lastName = last;
+      state.firstName = first;
       state.phone = phoneInput.value.trim();
       state.recruiter = recruiter;
       state.sectionIndex = 0;
@@ -1021,7 +1030,7 @@ window.__EST_STANDALONE__ = {
       el("div", { class: "stop-sign" }, ["STOP"])
     ]));
 
-    box.appendChild(el("p", { class: "stop-msg" }, ["Ready to begin, " + state.name + "."]));
+    box.appendChild(el("p", { class: "stop-msg" }, ["Ready to begin, " + displayName() + "."]));
     box.appendChild(el("p", { class: "stop-break" }, [
       "Hand the device to the test-taker now — the timer starts as soon as you tap Begin."
     ]));
@@ -1167,7 +1176,8 @@ window.__EST_STANDALONE__ = {
   // Shared shape for both the cookie history entry and the server POST body.
   function buildResultPayload(results) {
     var payload = {
-      name: state.name,
+      last_name: state.lastName,
+      first_name: state.firstName,
       phone: state.phone,
       recruiter: state.recruiter,
       timestamp: new Date().toISOString(),
@@ -1243,7 +1253,8 @@ window.__EST_STANDALONE__ = {
       var tableWrap = el("div", { class: "scores-table-wrap" });
       var table = el("table", { class: "scores-table" });
       var headerCells = [
-        el("th", {}, ["Name"]),
+        el("th", {}, ["Last Name"]),
+        el("th", {}, ["First Name"]),
         el("th", {}, ["Phone"]),
         el("th", {}, ["Recruiter"]),
         el("th", {}, ["Date & Time"]),
@@ -1259,7 +1270,8 @@ window.__EST_STANDALONE__ = {
         var parsedDate = new Date(entry.timestamp);
         var dateStr = isNaN(parsedDate.getTime()) ? (entry.timestamp || "—") : parsedDate.toLocaleString();
         var rowCells = [
-          el("td", {}, [entry.name || "—"]),
+          el("td", {}, [entry.last_name || "—"]),
+          el("td", {}, [entry.first_name || "—"]),
           el("td", {}, [entry.phone || "—"]),
           el("td", {}, [formatRecruiterDisplay(entry.recruiter) || "—"]),
           el("td", {}, [dateStr]),
@@ -1294,7 +1306,7 @@ window.__EST_STANDALONE__ = {
 
     var card = el("div", { class: "card" });
     card.appendChild(el("h1", {}, ["Results"]));
-    card.appendChild(el("p", { class: "byline" }, [state.name]));
+    card.appendChild(el("p", { class: "byline" }, [displayName()]));
     card.appendChild(el("p", { class: "byline" }, [
       "Recruiter: " + formatRecruiterDisplay(state.recruiter)
     ]));
