@@ -147,6 +147,11 @@ input.input-error {
 .field-error.visible {
   display: block;
 }
+.question-error {
+  text-align: center;
+  font-size: 0.95rem;
+  margin-top: 16px;
+}
 
 .btn {
   display: inline-block;
@@ -345,6 +350,20 @@ input.input-error {
 .stop-upnext-meta {
   color: var(--muted);
   font-size: 0.9rem;
+}
+/* The logo's wordmark is white -- it needs a dark ground to read against,
+   which the light stop-box panel isn't, so it gets its own dark tile. */
+.army-logo-wrap {
+  background: var(--bg);
+  border-radius: 8px;
+  max-width: 280px;
+  margin: 4px auto 18px;
+  padding: 16px 20px;
+}
+.army-logo {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .byline {
@@ -565,7 +584,8 @@ window.__EST_STANDALONE__ = {
     questionIndex: 0, // index into the current section's questions
     answers: {},      // answers[sectionCode][n] = "A"/"B"/"C"/"D"
     timerHandle: null,
-    secondsLeft: 0
+    secondsLeft: 0,
+    finalResults: null // set once the last section ends; see renderStop/renderResults
   };
 
   function el(tag, attrs, children) {
@@ -726,6 +746,7 @@ window.__EST_STANDALONE__ = {
       state.recruiter = recruiter;
       state.sectionIndex = 0;
       state.answers = {};
+      state.finalResults = null;
       QUESTIONS.sections.forEach(function (s) { state.answers[s.code] = {}; });
       renderPreTestHandoff();
     });
@@ -804,12 +825,23 @@ window.__EST_STANDALONE__ = {
       " - You will have " + sec.minutes + " Minutes"
     ]));
 
-    card.appendChild(renderQuestion(sec.code, q));
+    var answerError = el("div", { class: "field-error question-error" }, ["Please select an answer to continue."]);
 
-    // Forward-only: no way back to a previous question once answered.
+    card.appendChild(renderQuestion(sec.code, q, function () {
+      answerError.classList.remove("visible");
+    }));
+
+    // Forward-only: no way back to a previous question once answered. An
+    // answer is required to advance -- clicking Next/Finish (or pressing
+    // Enter, which triggers the same click) with nothing selected shows
+    // answerError instead of moving on.
     var navRow = el("div", { class: "nav-row" });
     var nextBtn = el("button", { class: "btn" }, [isLastQuestion ? "Finish Section" : "Next →"]);
     nextBtn.addEventListener("click", function () {
+      if (!state.answers[sec.code][q.n]) {
+        answerError.classList.add("visible");
+        return;
+      }
       if (isLastQuestion) {
         clearInterval(state.timerHandle);
         finishSection(sec, false);
@@ -820,11 +852,20 @@ window.__EST_STANDALONE__ = {
 
     navRow.appendChild(nextBtn);
     card.appendChild(navRow);
+    card.appendChild(answerError);
 
     app.appendChild(card);
 
     var numberToLetter = { "1": "A", "2": "B", "3": "C", "4": "D" };
     setKeyHandler(function (e) {
+      // Proctor shortcut: Ctrl/Cmd+Enter selects the correct answer and
+      // advances immediately, for quickly running through a full test.
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        state.answers[sec.code][q.n] = q.correct;
+        nextBtn.click();
+        return;
+      }
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       var letter = numberToLetter[e.key] || (e.key.length === 1 ? e.key.toUpperCase() : "");
       if (letter === "A" || letter === "B" || letter === "C" || letter === "D") {
@@ -842,7 +883,7 @@ window.__EST_STANDALONE__ = {
     });
   }
 
-  function renderQuestion(sectionCode, q) {
+  function renderQuestion(sectionCode, q, onAnswer) {
     var wrap = el("div", { class: "question question-single" });
     wrap.appendChild(el("div", { class: "q-prompt" }, [
       el("span", { class: "q-num" }, [q.n + "."]),
@@ -866,6 +907,7 @@ window.__EST_STANDALONE__ = {
           c.classList.remove("selected");
         });
         choiceRow.classList.add("selected");
+        if (onAnswer) onAnswer();
       });
       var choiceRow = el("label", {
         class: "choice" + (state.answers[sectionCode][q.n] === letter ? " selected" : ""),
@@ -882,6 +924,14 @@ window.__EST_STANDALONE__ = {
   }
 
   function finishSection(sec, timedOut) {
+    // Score and save to the local history the instant the last section ends
+    // -- not when someone later clicks through to the results screen -- so
+    // an accidental refresh on the STOP screen can't lose the result.
+    var isLast = state.sectionIndex >= QUESTIONS.sections.length - 1;
+    if (isLast) {
+      state.finalResults = computeResults();
+      saveResultToHistory(buildResultPayload(state.finalResults));
+    }
     renderStop(sec, timedOut);
   }
 
@@ -917,7 +967,12 @@ window.__EST_STANDALONE__ = {
     if (!isLast) {
       box.appendChild(buildUpNextBox(QUESTIONS.sections[state.sectionIndex + 1]));
     } else {
-      box.appendChild(el("p", { class: "stop-break" }, ["That was the last section — your results are next."]));
+      box.appendChild(el("div", { class: "army-logo-wrap" }, [
+        el("img", { src: "./assets/army_logo_horiz.svg", alt: "U.S. Army", class: "army-logo" })
+      ]));
+      box.appendChild(el("p", { class: "stop-break" }, [
+        "Please return this device to your recruiter to review your scores."
+      ]));
     }
 
     var nextBtn = el("button", { class: "btn" }, [isLast ? "Continue to Results" : "Continue"]);
@@ -1189,9 +1244,9 @@ window.__EST_STANDALONE__ = {
   function renderResults() {
     clear(app);
     setKeyHandler(null);
-    var results = computeResults();
-
-    saveResultToHistory(buildResultPayload(results));
+    // Already computed and saved to history in finishSection when the last
+    // section ended, so a refresh on the STOP screen in between can't lose it.
+    var results = state.finalResults;
 
     var card = el("div", { class: "card" });
     card.appendChild(el("h1", {}, ["Results"]));
