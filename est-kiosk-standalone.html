@@ -135,7 +135,7 @@ select {
 }
 select::-ms-expand { display: none; }
 
-input.input-error {
+input.input-error, select.input-error {
   border-color: #b00020;
 }
 .field-error {
@@ -560,7 +560,6 @@ window.__EST_STANDALONE__ = {
   var QUESTIONS = null;
   var SCORING = null;
 
-  var DEFAULT_RECRUITER = "3D7F";
   var RECRUITERS = ["Curless SSG", "Gatling SFC", "Guiler SFC", "Recendez SFC", "Schultz SFC", "Shirley SFC"];
 
   var SCORES_ACCESS_LAST = "check";
@@ -587,7 +586,7 @@ window.__EST_STANDALONE__ = {
     lastName: "",
     firstName: "",
     phone: "",
-    recruiter: DEFAULT_RECRUITER,
+    recruiter: "",
     sectionIndex: 0,  // index into QUESTIONS.sections
     questionIndex: 0, // index into the current section's questions
     answers: {},      // answers[sectionCode][n] = "A"/"B"/"C"/"D"
@@ -730,13 +729,15 @@ window.__EST_STANDALONE__ = {
     var phoneInput = el("input", { type: "tel", id: "phone", placeholder: "Phone number" });
     card.appendChild(phoneInput);
 
-    card.appendChild(el("label", { class: "field-label" }, ["Recruiter:"]));
+    card.appendChild(el("label", { class: "field-label" }, ["Recruiter: *"]));
     var recruiterSelect = el("select", { id: "recruiterSelect" });
-    recruiterSelect.appendChild(el("option", { value: DEFAULT_RECRUITER }, [DEFAULT_RECRUITER]));
+    recruiterSelect.appendChild(el("option", { value: "", disabled: "disabled" }, ["Select Recruiter"]));
     RECRUITERS.forEach(function (r) {
       recruiterSelect.appendChild(el("option", { value: r }, [r]));
     });
     card.appendChild(recruiterSelect);
+    var recruiterError = el("div", { class: "field-error" }, ["Recruiter is required."]);
+    card.appendChild(recruiterError);
 
     var startBtn = el("button", { class: "btn" }, ["Start Test"]);
     startBtn.addEventListener("click", function () {
@@ -751,16 +752,26 @@ window.__EST_STANDALONE__ = {
       lastNameError.classList.remove("visible");
 
       var first = firstNameInput.value.trim();
-      var recruiter = recruiterSelect.value || DEFAULT_RECRUITER;
+      var recruiter = recruiterSelect.value;
 
       // Name/recruiter fields double as the scores-viewer entry point: typing
       // last="check", first="scores" opens the saved-results screen instead
-      // of starting a test, scoped to whichever recruiter is selected
-      // (DEFAULT_RECRUITER = every recruiter).
+      // of starting a test, scoped to whichever recruiter is selected --
+      // this runs before the recruiter-required check below, so leaving the
+      // dropdown blank here still means "every recruiter" in that screen.
       if (last.toLowerCase() === SCORES_ACCESS_LAST && first.toLowerCase() === SCORES_ACCESS_FIRST) {
         renderScoresScreen(recruiter);
         return;
       }
+
+      if (!recruiter) {
+        recruiterSelect.classList.add("input-error");
+        recruiterError.classList.add("visible");
+        recruiterSelect.focus();
+        return;
+      }
+      recruiterSelect.classList.remove("input-error");
+      recruiterError.classList.remove("visible");
 
       state.lastName = last;
       state.firstName = first;
@@ -1220,13 +1231,14 @@ window.__EST_STANDALONE__ = {
 
   // ---------- Screen: Saved scores viewer ----------
   // Entered via the SCORES_ACCESS_LAST/FIRST name combo on the start screen
-  // (see startBtn handler). recruiter === DEFAULT_RECRUITER shows every
-  // recruiter's results; any specific recruiter value filters to just theirs.
+  // (see startBtn handler). A blank recruiter (dropdown left untouched)
+  // shows every recruiter's results; any specific recruiter value filters
+  // to just theirs.
   function renderScoresScreen(recruiter) {
     clear(app);
     setKeyHandler(null);
 
-    var showAll = recruiter === DEFAULT_RECRUITER;
+    var showAll = !recruiter;
     var entries = getResultsHistory().filter(function (e) {
       return showAll || e.recruiter === recruiter;
     });
