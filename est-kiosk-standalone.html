@@ -644,7 +644,7 @@ window.__EST_STANDALONE__ = {
 
   // RECRUITERS is stored "Lastname RANK" (alphabetizes cleanly by surname in
   // the dropdown); results display it rank-first, e.g. "Shirley SFC" -> "SFC
-  // Shirley". "3D7F" has no rank suffix and passes through unchanged.
+  // Shirley".
   function formatRecruiterDisplay(value) {
     if (!value) return value;
     var parts = value.trim().split(/\s+/);
