@@ -47,16 +47,17 @@
  * A=Timestamp) assume HEADER_ROW's current column order below -- if
  * that order changes, update the letters in the formula to match.
  *
- * Text notification on each save: sends via the free carrier
- * email-to-SMS gateway (MailApp, no external service or account).
- * Adding this to an already-deployed script requires a fresh
- * authorization the first time (it now sends email, a new scope) --
- * expect a consent prompt on the next "New version" deploy.
- * Set NOTIFY_PHONE_GATEWAY to "" to disable.
+ * Notification on each save: MailApp.sendEmail to NOTIFY_EMAIL. (This
+ * started as a T-Mobile email-to-SMS gateway address -- carriers
+ * routinely filter or kill those, and this one stopped delivering, so
+ * it now goes to a real inbox instead.) Adding this to an
+ * already-deployed script requires a fresh authorization the first
+ * time (it now sends email, a new scope) -- expect a consent prompt
+ * on the next "New version" deploy. Set NOTIFY_EMAIL to "" to disable.
  */
 
 var SHEET_NAME = "Results";
-var NOTIFY_PHONE_GATEWAY = "8642758089@tmomail.net"; // T-Mobile SMS gateway
+var NOTIFY_EMAIL = "joshua.t.shirley@army.mil";
 
 var HEADER_ROW = [
   "Timestamp", "Name", "Recruiter", "AFQT", "VE Score", "AR Score", "MK Score", "Std Sum",
@@ -111,21 +112,54 @@ function appendResultRow(data) {
     data.first_name || ""
   ]);
 
-  notifyResult(data, displayName);
+  notifyResult(data);
 }
 
 // Best-effort: the row is already saved by the time this runs, so a
 // notify failure (e.g. MailApp's daily quota) must not surface as a
 // save failure back to the kiosk.
-function notifyResult(data, displayName) {
-  if (!NOTIFY_PHONE_GATEWAY) return;
+function notifyResult(data) {
+  if (!NOTIFY_EMAIL) return;
   try {
-    var msg = "EST: " + displayName + " (AFQT " + data.afqt + ") - Recruiter: " +
-      (data.recruiter || "?") + " - Ph: " + (data.phone || "none given");
-    MailApp.sendEmail(NOTIFY_PHONE_GATEWAY, "", msg);
+    var when = Utilities.formatDate(
+      data.timestamp ? new Date(data.timestamp) : new Date(),
+      SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone(),
+      "yyyy MMM dd HH:mm"
+    ).toUpperCase();
+    var lastName = data.last_name || "";
+    var firstName = data.first_name || "";
+    var recruiter = data.recruiter || "";
+    var afqt = data.afqt;
+    var phone = formatPhone(data.phone);
+
+    var subject = "EST " + recruiter + " " + lastName + " " + firstName +
+      " AFQT " + afqt + " " + phone;
+    var body = [
+      when,
+      lastName + ", " + firstName,
+      "AFQT: " + afqt,
+      phone,
+      recruiter
+    ].join("\n");
+
+    MailApp.sendEmail(NOTIFY_EMAIL, subject, body);
   } catch (err) {
     Logger.log("notifyResult failed: " + err);
   }
+}
+
+// Formats a 10-digit US number as "(XXX) XXX-XXXX"; a leading country
+// code "1" on an 11-digit number is dropped first. Anything that isn't
+// a standard 10-digit number (blank, partial, international) is
+// returned as typed rather than guessed at.
+function formatPhone(phone) {
+  if (!phone) return "";
+  var digits = String(phone).replace(/\D/g, "");
+  if (digits.length === 11 && digits.charAt(0) === "1") digits = digits.slice(1);
+  if (digits.length === 10) {
+    return "(" + digits.slice(0, 3) + ") " + digits.slice(3, 6) + "-" + digits.slice(6);
+  }
+  return phone;
 }
 
 function getOrCreateSheet() {
