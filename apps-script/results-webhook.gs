@@ -165,7 +165,10 @@ function notifyResult(data) {
     plainLines.push(SHEET_URL);
     var body = plainLines.join("\n");
 
-    MailApp.sendEmail(NOTIFY_EMAIL, subject, body, { htmlBody: buildHtmlReport(data, when, testNumber) });
+    MailApp.sendEmail(NOTIFY_EMAIL, subject, body, {
+      htmlBody: buildHtmlReport(data, when, testNumber),
+      name: "Florence EST Kiosk"
+    });
   } catch (err) {
     Logger.log("notifyResult failed: " + err);
   }
@@ -181,6 +184,13 @@ function statusBand(section) {
   return { color: "#d03b3b", label: "Keep practicing" };
 }
 
+// Mirrors the kiosk's own Results screen (hero AFQT, a color-banded
+// progress meter per section, overall %) as closely as HTML email
+// permits. Built with nested tables and bgcolor attributes rather than
+// CSS gradients/border-radius/flexbox specifically because a .mil
+// inbox is very likely Outlook, whose HTML renderer (Word's engine)
+// ignores most modern CSS -- the two-cell "table bar" is the standard
+// cross-client-safe way to fake a progress bar in email.
 function buildHtmlReport(data, when, testNumber) {
   var lastName = esc(data.last_name || "");
   var firstName = esc(data.first_name || "");
@@ -188,28 +198,63 @@ function buildHtmlReport(data, when, testNumber) {
   var phone = esc(formatPhone(data.phone));
   var sections = data.sections || {};
 
-  var rows = SECTION_ORDER.map(function (code) {
+  var overallCorrect = 0, overallTotal = 0;
+  SECTION_ORDER.forEach(function (code) {
+    var s = sections[code];
+    if (!s) return;
+    overallCorrect += s.correct;
+    overallTotal += s.total;
+  });
+  var overallPct = overallTotal ? Math.round((100 * overallCorrect) / overallTotal) : 0;
+
+  var meterRows = SECTION_ORDER.map(function (code) {
     var s = sections[code];
     if (!s) return "";
     var band = statusBand(s);
-    return "<tr>" +
-      "<td style=\"padding:6px 12px;border-bottom:1px solid #eee;\">" + esc(SECTION_NAMES[code]) + "</td>" +
-      "<td style=\"padding:6px 12px;border-bottom:1px solid #eee;text-align:right;font-variant-numeric:tabular-nums;\">" + s.correct + " / " + s.total + "</td>" +
-      "<td style=\"padding:6px 12px;border-bottom:1px solid #eee;color:" + band.color + ";font-weight:600;\">" + band.label + "</td>" +
-      "</tr>";
+    var pct = s.total ? Math.round((100 * s.correct) / s.total) : 0;
+    var unansweredNote = s.unanswered > 0
+      ? "<span style=\"color:#555;\"> &middot; " + s.unanswered + " unanswered</span>"
+      : "";
+
+    return "" +
+      "<tr><td style=\"padding:0 0 18px;\">" +
+      "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\"><tr>" +
+      "<td style=\"font-size:15px;color:#1a1a1a;\">" + esc(SECTION_NAMES[code]) + "</td>" +
+      "<td align=\"right\" style=\"font-size:14px;color:#555;font-family:Consolas,'SF Mono',monospace;white-space:nowrap;\">" + s.correct + " / " + s.total + "</td>" +
+      "</tr></table>" +
+      "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"margin-top:6px;\"><tr>" +
+      "<td width=\"" + pct + "%\" bgcolor=\"" + band.color + "\" style=\"font-size:1px;line-height:10px;\">&nbsp;</td>" +
+      "<td width=\"" + (100 - pct) + "%\" bgcolor=\"#e6e6e6\" style=\"font-size:1px;line-height:10px;\">&nbsp;</td>" +
+      "</tr></table>" +
+      "<p style=\"margin:6px 0 0;font-size:13px;color:" + band.color + ";font-weight:700;\">" + band.label + unansweredNote + "</p>" +
+      "</td></tr>";
   }).join("");
 
-  return "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;max-width:480px;\">" +
-    "<p style=\"color:#555;margin:0 0 12px;\">" + esc(when) + (testNumber > 1 ? " &middot; Test " + testNumber : "") + "</p>" +
-    "<h2 style=\"margin:0 0 4px;\">" + lastName + ", " + firstName + "</h2>" +
-    "<p style=\"color:#555;margin:0 0 16px;\">" + recruiter + (phone ? " &middot; " + phone : "") + "</p>" +
-    "<div style=\"text-align:center;margin:0 0 20px;\">" +
-    "<div style=\"font-size:2.5rem;font-weight:700;color:#1e4d8c;\">" + data.afqt + "</div>" +
-    "<div style=\"font-size:0.8rem;color:#555;text-transform:uppercase;letter-spacing:1px;\">Projected AFQT</div>" +
-    "</div>" +
-    "<table style=\"width:100%;border-collapse:collapse;font-size:0.95rem;\">" + rows + "</table>" +
-    "<p style=\"margin:20px 0 0;\"><a href=\"" + SHEET_URL + "\">View full results sheet &#8599;</a></p>" +
-    "</div>";
+  return "" +
+    "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"max-width:480px;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;\"><tr><td style=\"padding:8px 4px;\">" +
+
+    "<p style=\"margin:0 0 4px;font-size:13px;color:#555;\">" + esc(when) + (testNumber > 1 ? " &middot; Test " + testNumber : "") + "</p>" +
+    "<h2 style=\"margin:0 0 4px;font-size:22px;\">" + lastName + ", " + firstName + "</h2>" +
+    "<p style=\"margin:0 0 20px;font-size:14px;color:#555;\">" + recruiter + (phone ? " &middot; " + phone : "") + "</p>" +
+
+    "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-bottom:1px solid #eee;margin-bottom:20px;\"><tr>" +
+    "<td align=\"center\" style=\"padding:6px 0 22px;\">" +
+    "<div style=\"font-size:44px;font-weight:700;color:#1e4d8c;line-height:1;\">" + data.afqt + "</div>" +
+    "<div style=\"font-size:12px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:8px;\">Projected AFQT Score</div>" +
+    "<div style=\"font-size:11px;color:#888;margin-top:2px;\">Projected on the full-length ASVAB scale</div>" +
+    "</td></tr></table>" +
+
+    "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\">" + meterRows + "</table>" +
+
+    "<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" role=\"presentation\" style=\"border-top:1px solid #eee;margin-top:4px;\"><tr>" +
+    "<td align=\"center\" style=\"padding:16px 0 4px;\">" +
+    "<div style=\"font-size:26px;font-weight:700;color:#1e4d8c;\">" + overallPct + "%</div>" +
+    "<div style=\"font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-top:2px;\">Overall</div>" +
+    "</td></tr></table>" +
+
+    "<p style=\"margin:22px 0 0;font-size:14px;\"><a href=\"" + SHEET_URL + "\" style=\"color:#1e4d8c;\">View full results sheet &#8599;</a></p>" +
+
+    "</td></tr></table>";
 }
 
 function esc(value) {
