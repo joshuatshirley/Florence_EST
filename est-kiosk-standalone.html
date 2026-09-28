@@ -1027,9 +1027,7 @@ window.__EST_STANDALONE__ = {
       box.appendChild(el("p", { class: "stop-break" }, [
         "Please return this device to your recruiter to review your scores."
       ]));
-      var syncStatus = el("p", { class: "save-status" }, [""]);
-      box.appendChild(syncStatus);
-      postResultsToWebhook(state.finalPayload, syncStatus);
+      postResultsToWebhook(state.finalPayload);
     }
 
     var nextBtn = el("button", { class: "btn" }, [isLast ? "Continue to Results" : "Continue"]);
@@ -1298,26 +1296,22 @@ window.__EST_STANDALONE__ = {
   // "simple request" and skips the CORS preflight -- Apps Script's web app
   // endpoint issues a redirect for POST requests that a preflight can choke
   // on. results-webhook.gs parses the body as JSON regardless of the header.
-  function postResultsToWebhook(payload, statusEl) {
-    if (!RESULTS_WEBHOOK_URL) {
-      statusEl.textContent = "Results saved on this device.";
-      return;
-    }
-    statusEl.textContent = "Syncing results...";
+  //
+  // Silent, like flushPendingSyncQueue -- the local cookie history is
+  // already the durable record by the time this runs (see finishSection),
+  // and the STOP screen's job is just "hand the device back", not narrate
+  // sync plumbing. A failure here enqueues for automatic retry rather than
+  // surfacing anything on screen.
+  function postResultsToWebhook(payload) {
+    if (!RESULTS_WEBHOOK_URL) return;
     fetch(RESULTS_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     }).then(function (r) { return r.json(); }).then(function (res) {
-      if (res && res.ok) {
-        statusEl.textContent = "Results synced.";
-      } else {
-        enqueuePendingSync(payload);
-        statusEl.textContent = "Could not sync (server error) -- saved locally, will retry automatically.";
-      }
+      if (!res || !res.ok) enqueuePendingSync(payload);
     }).catch(function () {
       enqueuePendingSync(payload);
-      statusEl.textContent = "Could not sync (offline?) -- saved locally, will sync automatically once back online.";
     });
   }
 

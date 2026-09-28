@@ -47,17 +47,33 @@
  * A=Timestamp) assume HEADER_ROW's current column order below -- if
  * that order changes, update the letters in the formula to match.
  *
- * Notification on each save: MailApp.sendEmail to NOTIFY_EMAIL. (This
- * started as a T-Mobile email-to-SMS gateway address -- carriers
- * routinely filter or kill those, and this one stopped delivering, so
- * it now goes to a real inbox instead.) Adding this to an
- * already-deployed script requires a fresh authorization the first
- * time (it now sends email, a new scope) -- expect a consent prompt
- * on the next "New version" deploy. Set NOTIFY_EMAIL to "" to disable.
+ * Notification on each save: MailApp.sendEmail to NOTIFY_EMAIL, as an
+ * HTML report (with a plain-text fallback body for clients that don't
+ * render HTML) -- a per-section breakdown table, not just the AFQT
+ * number, so a section that went poorly is visible without opening
+ * the Sheet, and the email itself is presentable enough to forward
+ * straight to a recruiter. (This started as a T-Mobile email-to-SMS
+ * gateway address -- carriers routinely filter or kill those, and
+ * this one stopped delivering, so it now goes to a real inbox
+ * instead.) Adding this to an already-deployed script requires a
+ * fresh authorization the first time (it now sends email, a new
+ * scope) -- expect a consent prompt on the next "New version" deploy.
+ * Set NOTIFY_EMAIL to "" to disable.
  */
 
 var SHEET_NAME = "Results";
 var NOTIFY_EMAIL = "joshua.t.shirley@army.mil";
+var SHEET_URL = "https://docs.google.com/spreadsheets/d/1BftqXMNaw7WurUHmzGtQiUQvFmgnaGe-1Qm_CtW1Tjc/edit";
+
+var SECTION_NAMES = {
+  WK: "Word Knowledge",
+  AR: "Arithmetic Reasoning",
+  PC: "Paragraph Comprehension",
+  MK: "Mathematics Knowledge"
+};
+// Section order + thresholds match the kiosk's own statusBand() in
+// est-kiosk-standalone.html -- keep these in sync if that ever changes.
+var SECTION_ORDER = ["WK", "AR", "PC", "MK"];
 
 var HEADER_ROW = [
   "Timestamp", "Name", "Recruiter", "AFQT", "VE Score", "AR Score", "MK Score", "Std Sum",
@@ -133,21 +149,75 @@ function notifyResult(data) {
     var recruiter = data.recruiter || "";
     var afqt = data.afqt;
     var phone = formatPhone(data.phone);
+    var testNumber = data.test_number || 1;
+    var sections = data.sections || {};
 
     var subject = "EST " + recruiter + " " + lastName + " " + firstName +
       " AFQT " + afqt + " " + phone;
-    var body = [
-      when,
-      lastName + ", " + firstName,
-      "AFQT: " + afqt,
-      phone,
-      recruiter
-    ].join("\n");
 
-    MailApp.sendEmail(NOTIFY_EMAIL, subject, body);
+    var plainLines = [when, lastName + ", " + firstName, "AFQT: " + afqt, phone, recruiter];
+    if (testNumber > 1) plainLines.push("Test " + testNumber);
+    SECTION_ORDER.forEach(function (code) {
+      var s = sections[code];
+      if (!s) return;
+      plainLines.push(SECTION_NAMES[code] + ": " + s.correct + "/" + s.total + " (" + statusBand(s).label + ")");
+    });
+    plainLines.push(SHEET_URL);
+    var body = plainLines.join("\n");
+
+    MailApp.sendEmail(NOTIFY_EMAIL, subject, body, { htmlBody: buildHtmlReport(data, when, testNumber) });
   } catch (err) {
     Logger.log("notifyResult failed: " + err);
   }
+}
+
+// Same 70%/40% thresholds as the kiosk's own statusBand() in
+// est-kiosk-standalone.html, so this email reads the same as what the
+// recruiter saw live on the device.
+function statusBand(section) {
+  var pct = section.total ? (100 * section.correct) / section.total : 0;
+  if (pct >= 70) return { color: "#0ca30c", label: "Strong" };
+  if (pct >= 40) return { color: "#fab219", label: "Needs review" };
+  return { color: "#d03b3b", label: "Keep practicing" };
+}
+
+function buildHtmlReport(data, when, testNumber) {
+  var lastName = esc(data.last_name || "");
+  var firstName = esc(data.first_name || "");
+  var recruiter = esc(data.recruiter || "");
+  var phone = esc(formatPhone(data.phone));
+  var sections = data.sections || {};
+
+  var rows = SECTION_ORDER.map(function (code) {
+    var s = sections[code];
+    if (!s) return "";
+    var band = statusBand(s);
+    return "<tr>" +
+      "<td style=\"padding:6px 12px;border-bottom:1px solid #eee;\">" + esc(SECTION_NAMES[code]) + "</td>" +
+      "<td style=\"padding:6px 12px;border-bottom:1px solid #eee;text-align:right;font-variant-numeric:tabular-nums;\">" + s.correct + " / " + s.total + "</td>" +
+      "<td style=\"padding:6px 12px;border-bottom:1px solid #eee;color:" + band.color + ";font-weight:600;\">" + band.label + "</td>" +
+      "</tr>";
+  }).join("");
+
+  return "<div style=\"font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;max-width:480px;\">" +
+    "<p style=\"color:#555;margin:0 0 12px;\">" + esc(when) + (testNumber > 1 ? " &middot; Test " + testNumber : "") + "</p>" +
+    "<h2 style=\"margin:0 0 4px;\">" + lastName + ", " + firstName + "</h2>" +
+    "<p style=\"color:#555;margin:0 0 16px;\">" + recruiter + (phone ? " &middot; " + phone : "") + "</p>" +
+    "<div style=\"text-align:center;margin:0 0 20px;\">" +
+    "<div style=\"font-size:2.5rem;font-weight:700;color:#1e4d8c;\">" + data.afqt + "</div>" +
+    "<div style=\"font-size:0.8rem;color:#555;text-transform:uppercase;letter-spacing:1px;\">Projected AFQT</div>" +
+    "</div>" +
+    "<table style=\"width:100%;border-collapse:collapse;font-size:0.95rem;\">" + rows + "</table>" +
+    "<p style=\"margin:20px 0 0;\"><a href=\"" + SHEET_URL + "\">View full results sheet &#8599;</a></p>" +
+    "</div>";
+}
+
+function esc(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 // Formats a 10-digit US number as "(XXX) XXX-XXXX"; a leading country
