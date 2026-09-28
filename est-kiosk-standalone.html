@@ -282,21 +282,6 @@ input.input-error {
   gap: 16px;
   margin-top: 30px;
 }
-.btn-link {
-  background: none;
-  border: none;
-  color: var(--muted);
-  text-decoration: underline;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 4px;
-}
-.btn-link:hover { color: var(--ink); }
-.finish-early-row {
-  text-align: center;
-  margin-top: 16px;
-}
-
 .stop-box {
   background: var(--stop-bg);
   border: 1px solid #999;
@@ -835,15 +820,6 @@ window.__EST_STANDALONE__ = {
 
     navRow.appendChild(nextBtn);
     card.appendChild(navRow);
-
-    if (!isLastQuestion) {
-      var finishEarly = el("button", { class: "btn-link" }, ["Finish section early"]);
-      finishEarly.addEventListener("click", function () {
-        clearInterval(state.timerHandle);
-        finishSection(sec, false);
-      });
-      card.appendChild(el("div", { class: "finish-early-row" }, [finishEarly]));
-    }
 
     app.appendChild(card);
 
