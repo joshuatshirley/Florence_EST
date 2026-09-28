@@ -46,9 +46,17 @@
  * Column letters (C=Recruiter, V=Last Name, W=First Name, U=Phone,
  * A=Timestamp) assume HEADER_ROW's current column order below -- if
  * that order changes, update the letters in the formula to match.
+ *
+ * Text notification on each save: sends via the free carrier
+ * email-to-SMS gateway (MailApp, no external service or account).
+ * Adding this to an already-deployed script requires a fresh
+ * authorization the first time (it now sends email, a new scope) --
+ * expect a consent prompt on the next "New version" deploy.
+ * Set NOTIFY_PHONE_GATEWAY to "" to disable.
  */
 
 var SHEET_NAME = "Results";
+var NOTIFY_PHONE_GATEWAY = "8642758089@tmomail.net"; // T-Mobile SMS gateway
 
 var HEADER_ROW = [
   "Timestamp", "Name", "Recruiter", "AFQT", "VE Score", "AR Score", "MK Score", "Std Sum",
@@ -102,6 +110,22 @@ function appendResultRow(data) {
     data.last_name || "",
     data.first_name || ""
   ]);
+
+  notifyResult(data, displayName);
+}
+
+// Best-effort: the row is already saved by the time this runs, so a
+// notify failure (e.g. MailApp's daily quota) must not surface as a
+// save failure back to the kiosk.
+function notifyResult(data, displayName) {
+  if (!NOTIFY_PHONE_GATEWAY) return;
+  try {
+    var msg = "EST: " + displayName + " (AFQT " + data.afqt + ") - Recruiter: " +
+      (data.recruiter || "?") + " - Ph: " + (data.phone || "none given");
+    MailApp.sendEmail(NOTIFY_PHONE_GATEWAY, "", msg);
+  } catch (err) {
+    Logger.log("notifyResult failed: " + err);
+  }
 }
 
 function getOrCreateSheet() {
