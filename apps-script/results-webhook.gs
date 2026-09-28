@@ -66,7 +66,8 @@ var HEADER_ROW = [
   "PC Correct", "PC Total", "PC Unanswered",
   "MK Correct", "MK Total", "MK Unanswered",
   "Phone",
-  "Last Name", "First Name"
+  "Last Name", "First Name",
+  "Test Number"
 ];
 
 function doPost(e) {
@@ -109,7 +110,8 @@ function appendResultRow(data) {
     field("MK", "correct"), field("MK", "total"), field("MK", "unanswered"),
     data.phone || "",
     data.last_name || "",
-    data.first_name || ""
+    data.first_name || "",
+    data.test_number || 1
   ]);
 
   notifyResult(data);

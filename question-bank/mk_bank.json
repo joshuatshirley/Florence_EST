@@ -1,0 +1,729 @@
+{
+  "tests": [
+    [
+      {
+        "n": 1,
+        "prompt": "Which of the following is the smallest prime number greater than 150?",
+        "choices": {
+          "A": "152",
+          "B": "153",
+          "C": "151",
+          "D": "157"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 2,
+        "prompt": "40% is equal to the fraction X/60.\n\nWhat is the value of X?",
+        "choices": {
+          "A": "0.4",
+          "B": "24",
+          "C": "1,500",
+          "D": "240"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 3,
+        "prompt": "The expression \"6!\" equals?",
+        "choices": {
+          "A": "216",
+          "B": "36",
+          "C": "720",
+          "D": "12"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 4,
+        "prompt": "A gym charges a $60 one-time joining fee. After joining, a member pays $15 per month, and makes no other payments.\n\nWhat will the total amount paid be, \"X\" months from now?",
+        "choices": {
+          "A": "$60 + $15X",
+          "B": "$60 - $15X",
+          "C": "$75 - X",
+          "D": "$60 + $15 + X"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 5,
+        "prompt": "What is the result of subtracting\n\n4X² - 6X + 2\n\nfrom\n\n9X² + 3X - 5 ?",
+        "choices": {
+          "A": "5X² + 9X - 7",
+          "B": "-5X² + 9X - 7",
+          "C": "5X² - 9X - 7",
+          "D": "5X² + 9X - 3"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 6,
+        "prompt": "What is the meaning of the statement:\n\n-18 < -4",
+        "choices": {
+          "A": "18 is greater than 4",
+          "B": "18 is less than minus 4",
+          "C": "Negative 18 is less than negative 4",
+          "D": "Negative 18 is greater than negative 4"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 7,
+        "prompt": "Solve for X:\n\n7X - 3 - 2X = 17",
+        "choices": {
+          "A": "X = 2.8",
+          "B": "X = 3.4",
+          "C": "X = 4",
+          "D": "X = 15"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 8,
+        "prompt": "When the temperature is 35 degrees Celsius (C), what is it on the Fahrenheit (F) scale?\n\nUse the following formula:\nDegrees Fahrenheit = 9/5(C) + 32",
+        "choices": {
+          "A": "63 Degrees",
+          "B": "51.4 Degrees",
+          "C": "95 Degrees",
+          "D": "120.6 Degrees"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 9,
+        "prompt": "The perimeter of a rectangle is 54\". The length is 5\" more than the width.\n\nFind the width.",
+        "choices": {
+          "A": "24.5\"",
+          "B": "13.5\"",
+          "C": "11\"",
+          "D": "16\""
+        },
+        "correct": "C"
+      },
+      {
+        "n": 10,
+        "prompt": "If 9X = 63,\n\nthen X is equal to:",
+        "choices": {
+          "A": "567",
+          "B": "54",
+          "C": "7",
+          "D": "0.7"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 11,
+        "prompt": "What is the product of\n\n(B - 6) and (B + 4) ?",
+        "choices": {
+          "A": "B² - 24",
+          "B": "B² + 2B - 24",
+          "C": "B² - 2B - 24",
+          "D": "B² - 2"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 12,
+        "prompt": "Find the square root of 130, correct to the nearest tenth.",
+        "choices": {
+          "A": "11.2",
+          "B": "11.3",
+          "C": "11.4",
+          "D": "11.5"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 13,
+        "prompt": "Solve for Y:\n\n6Y - 4 + 3Y = 9Y + 5",
+        "choices": {
+          "A": "Y = 0",
+          "B": "Y = -1",
+          "C": "Y = 1",
+          "D": "Y = No Solution"
+        },
+        "correct": "D"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "A park is being redesigned in the shape of an octagon. If a park bench is placed at each corner of the park, how many benches will there be?",
+        "choices": {
+          "A": "6",
+          "B": "7",
+          "C": "8",
+          "D": "9"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 2,
+        "prompt": "One of the equal angles of an isosceles triangle is 40 degrees. What is the angle opposite the unequal side?",
+        "choices": {
+          "A": "40 degrees",
+          "B": "90 degrees",
+          "C": "100 degrees",
+          "D": "140 degrees"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 3,
+        "prompt": "30% of 40 is 20% of what number?",
+        "choices": {
+          "A": "15",
+          "B": "30",
+          "C": "60",
+          "D": "120"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 4,
+        "prompt": "Two circles have the same center. If their radii are 9 inches and 12 inches, find the area that is part of the larger circle but not the smaller one.",
+        "choices": {
+          "A": "3 square inches",
+          "B": "63 square inches",
+          "C": "108π square inches",
+          "D": "63π square inches"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 5,
+        "prompt": "If the area of a triangle is 60 square inches and its base is 10 inches, what is the length of the altitude to that base?",
+        "choices": {
+          "A": "6 inches",
+          "B": "12 inches",
+          "C": "20 inches",
+          "D": "30 inches"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 6,
+        "prompt": "Find the value of (-2)⁴ + (-3)² - (-1)³.",
+        "choices": {
+          "A": "-6",
+          "B": "6",
+          "C": "24",
+          "D": "26"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 7,
+        "prompt": "If X = -4, then 3X² - 2X + 5 =",
+        "choices": {
+          "A": "1",
+          "B": "45",
+          "C": "61",
+          "D": "157"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 8,
+        "prompt": "(X⁴)⁵ =",
+        "choices": {
+          "A": "X⁹",
+          "B": "X²⁰",
+          "C": "X¹",
+          "D": "X⁵"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 9,
+        "prompt": "What is the reciprocal of 5/9?",
+        "choices": {
+          "A": "5/9",
+          "B": "-9/5",
+          "C": "9/5",
+          "D": "9/14"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 10,
+        "prompt": "What is the fraction 5/6 when it is changed to a percentage?",
+        "choices": {
+          "A": "60.00%",
+          "B": "75.00%",
+          "C": "83.33%",
+          "D": "85.33%"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 11,
+        "prompt": "What is the value of (-18)²?",
+        "choices": {
+          "A": "-36",
+          "B": "-324",
+          "C": "324",
+          "D": "3,240"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 12,
+        "prompt": "A square has a side length of 9 centimeters. What is its perimeter?",
+        "choices": {
+          "A": "18 centimeters",
+          "B": "36 centimeters",
+          "C": "81 centimeters",
+          "D": "45 centimeters"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 13,
+        "prompt": "In a right triangle, the two legs measure 9 inches and 12 inches. What is the length of the hypotenuse?",
+        "choices": {
+          "A": "10.5 inches",
+          "B": "13 inches",
+          "C": "15 inches",
+          "D": "21 inches"
+        },
+        "correct": "C"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "Factor the expression B² - 121.",
+        "choices": {
+          "A": "(B + 11)(B + 11)",
+          "B": "(B - 11)(B - 11)",
+          "C": "(B + 11)(B - 11)",
+          "D": "2B(121)"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 2,
+        "prompt": "Round off 4,286.359 to the nearest hundredth.",
+        "choices": {
+          "A": "4,300",
+          "B": "4,286.4",
+          "C": "4,286.36",
+          "D": "4,286.35"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 3,
+        "prompt": "Solve the following inequality: X - 9 ≤ 4",
+        "choices": {
+          "A": "X ≤ 5",
+          "B": "X ≤ 13",
+          "C": "X ≥ 13",
+          "D": "X < 13"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "Solve for X: 3X + 4 = 19 - 2X",
+        "choices": {
+          "A": "X = 1",
+          "B": "X = 3.8",
+          "C": "X = 3",
+          "D": "X = 15"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 5,
+        "prompt": "What is the product of 3X²Y and (4X³Y - 5)?",
+        "choices": {
+          "A": "12X⁶Y² - 15X²Y",
+          "B": "12X⁵Y² - 15",
+          "C": "12X⁵Y² - 15X²Y",
+          "D": "12X⁵Y - 15X²Y"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 6,
+        "prompt": "A painter can paint 1/4 of a house by herself in one day, and her assistant can paint 1/6 of the house by himself in one day.\n\nWhat portion of the house can they paint if they work together for one day?",
+        "choices": {
+          "A": "1/5",
+          "B": "1/24",
+          "C": "5/12",
+          "D": "5/24"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 7,
+        "prompt": "A board is 7 feet, 2 inches long. If a piece 4 feet, 8 inches in length is cut from the board, what is the length of the remaining piece?",
+        "choices": {
+          "A": "3 feet, 6 inches",
+          "B": "2 feet, 0 inches",
+          "C": "2 feet, 6 inches",
+          "D": "1 foot, 6 inches"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 8,
+        "prompt": "If X = -5, what is the value of |X - 9|?",
+        "choices": {
+          "A": "-14",
+          "B": "4",
+          "C": "-4",
+          "D": "14"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 9,
+        "prompt": "Solve the following system of equations for X:\n\nX + Y = 15\nX - Y = 3",
+        "choices": {
+          "A": "18",
+          "B": "12",
+          "C": "9",
+          "D": "6"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 10,
+        "prompt": "How many inches are there in a length of F feet and Y yards?",
+        "choices": {
+          "A": "12F + 3Y",
+          "B": "3F + 36Y",
+          "C": "12F + 36Y",
+          "D": "(F + Y)/12"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 11,
+        "prompt": "Solve the following formula for H:\n\nV = LWH",
+        "choices": {
+          "A": "H = V/(LW)",
+          "B": "H = V - LW",
+          "C": "H = LW/V",
+          "D": "H = V × LW"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 12,
+        "prompt": "A hiker walks 6 miles directly east and then travels 8 miles directly north. How many miles is she from her starting point?",
+        "choices": {
+          "A": "14 miles",
+          "B": "100 miles",
+          "C": "10 miles",
+          "D": "2 miles"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 13,
+        "prompt": "A fence around a rectangular garden 30 feet long and 20 feet wide is torn down and reused to completely enclose a square garden.\n\nWhat is the length in feet of a side of the square garden?",
+        "choices": {
+          "A": "50 feet",
+          "B": "30 feet",
+          "C": "25 feet",
+          "D": "12.5 feet"
+        },
+        "correct": "C"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "A shipping company packs small boxes measuring 2 inches by 3 inches by 5 inches inside large boxes measuring 4 inches by 9 inches by 15 inches.\n\nHow many of the small boxes are required to fill one large box?",
+        "choices": {
+          "A": "9",
+          "B": "15",
+          "C": "18",
+          "D": "20"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 2,
+        "prompt": "A wheel has a diameter of 21 inches. How many inches will the wheel roll along the ground during one rotation? (Use 22/7 as the value of π.)",
+        "choices": {
+          "A": "66 inches",
+          "B": "33 inches",
+          "C": "21 inches",
+          "D": "42 inches"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 3,
+        "prompt": "A student has grades of 70 on each of two tests and a grade of 80 on a third test.\n\nWhat grade must he get on a fourth test to raise his average to 78?",
+        "choices": {
+          "A": "14",
+          "B": "82",
+          "C": "92",
+          "D": "102"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 4,
+        "prompt": "A motorist travels for 2 hours at 60 miles per hour and then travels for 4 more hours at 45 miles per hour.\n\nWhat is her average rate of speed in miles per hour for the entire trip?",
+        "choices": {
+          "A": "52.5 miles per hour",
+          "B": "49 miles per hour",
+          "C": "50 miles per hour",
+          "D": "105 miles per hour"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 5,
+        "prompt": "A sprinkler is capable of watering a circular area up to a radius of 12 feet. If it is used to cover a 90-degree angular portion of this area, how many square feet will it cover?\n\n(Use 3.14 as the value of π.)",
+        "choices": {
+          "A": "90 square feet",
+          "B": "75.36 square feet",
+          "C": "452.16 square feet",
+          "D": "113.04 square feet"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 6,
+        "prompt": "Solve for X: X² + 3X = 10.",
+        "choices": {
+          "A": "X = 5, X = -2",
+          "B": "X = -5, X = -2",
+          "C": "X = -5, X = 2",
+          "D": "X = -10, X = 1"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 7,
+        "prompt": "16 ounces of a fruit drink contains 25% real juice and 75% water. The mixture is diluted by adding 24 additional ounces of water.\n\nWhat is the percentage of real juice in the new solution?",
+        "choices": {
+          "A": "6.25%",
+          "B": "10%",
+          "C": "16.7%",
+          "D": "25%"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 8,
+        "prompt": "Under a federal program, a developer is required to set aside at least 25% of the apartments she builds as affordable housing. If she plans on having 90 affordable apartments, what is the maximum number of apartments of all types that she can build?",
+        "choices": {
+          "A": "22.5",
+          "B": "270",
+          "C": "315",
+          "D": "360"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 9,
+        "prompt": "Which of the following is the smallest prime number greater than 90?",
+        "choices": {
+          "A": "91",
+          "B": "93",
+          "C": "97",
+          "D": "99"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 10,
+        "prompt": "15% is equal to the fraction X/80.\n\nWhat is the value of X?",
+        "choices": {
+          "A": "0.15",
+          "B": "12",
+          "C": "533.3",
+          "D": "1,200"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 11,
+        "prompt": "The expression \"4!\" equals?",
+        "choices": {
+          "A": "8",
+          "B": "16",
+          "C": "24",
+          "D": "64"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 12,
+        "prompt": "A vending machine starts with $80 in it. Every day, the machine dispenses $8 worth of product, and no money is added back.\n\nWhat will the machine hold, \"X\" days from now?",
+        "choices": {
+          "A": "$80 + $8X",
+          "B": "$80 - $8X",
+          "C": "$88 - X",
+          "D": "$80 - $8 + X"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 13,
+        "prompt": "What is the result of subtracting\n\n2X² - 4X + 6\n\nfrom\n\n7X² + X - 3 ?",
+        "choices": {
+          "A": "-5X² + 5X - 9",
+          "B": "5X² - 5X - 9",
+          "C": "5X² + 5X - 9",
+          "D": "5X² + 5X + 3"
+        },
+        "correct": "C"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "What is the meaning of the statement:\n\n-22 < -9",
+        "choices": {
+          "A": "22 is greater than 9",
+          "B": "22 is less than minus 9",
+          "C": "Negative 22 is less than negative 9",
+          "D": "Negative 22 is greater than negative 9"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 2,
+        "prompt": "Solve for X:\n\n6X - 4 - 3X = 14",
+        "choices": {
+          "A": "X = 3.33",
+          "B": "X = 4.67",
+          "C": "X = 6",
+          "D": "X = 18"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 3,
+        "prompt": "When the temperature is 15 degrees Celsius (C), what is it on the Fahrenheit (F) scale?\n\nUse the following formula:\nDegrees Fahrenheit = 9/5(C) + 32",
+        "choices": {
+          "A": "27 Degrees",
+          "B": "40.3 Degrees",
+          "C": "59 Degrees",
+          "D": "84.6 Degrees"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 4,
+        "prompt": "The perimeter of a rectangle is 46\". The length is 7\" more than the width.\n\nFind the width.",
+        "choices": {
+          "A": "19.5\"",
+          "B": "11.5\"",
+          "C": "8\"",
+          "D": "15\""
+        },
+        "correct": "C"
+      },
+      {
+        "n": 5,
+        "prompt": "If 7X = 56,\n\nthen X is equal to:",
+        "choices": {
+          "A": "392",
+          "B": "49",
+          "C": "8",
+          "D": "0.8"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 6,
+        "prompt": "What is the product of\n\n(C + 7) and (C - 2) ?",
+        "choices": {
+          "A": "C² - 14",
+          "B": "C² - 5C - 14",
+          "C": "C² + 5C - 14",
+          "D": "C² + 5"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 7,
+        "prompt": "Find the square root of 60, correct to the nearest tenth.",
+        "choices": {
+          "A": "7.5",
+          "B": "7.6",
+          "C": "7.7",
+          "D": "7.8"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 8,
+        "prompt": "Solve for Y:\n\n5Y - 6 + 2Y = 42 - Y",
+        "choices": {
+          "A": "Y = 4",
+          "B": "Y = 6",
+          "C": "Y = 8",
+          "D": "Y = 48"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 9,
+        "prompt": "A garden is being designed in the shape of a heptagon (a 7-sided figure). If a solar light is placed at each corner, how many lights will be needed?",
+        "choices": {
+          "A": "5",
+          "B": "6",
+          "C": "7",
+          "D": "8"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 10,
+        "prompt": "One of the equal angles of an isosceles triangle is 65 degrees. What is the angle opposite the unequal side?",
+        "choices": {
+          "A": "50 degrees",
+          "B": "65 degrees",
+          "C": "90 degrees",
+          "D": "115 degrees"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 11,
+        "prompt": "50% of 60 is 25% of what number?",
+        "choices": {
+          "A": "30",
+          "B": "60",
+          "C": "120",
+          "D": "240"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 12,
+        "prompt": "Two circles have the same center. If their radii are 6 inches and 11 inches, find the area that is part of the larger circle but not the smaller one.",
+        "choices": {
+          "A": "5 square inches",
+          "B": "85 square inches",
+          "C": "66π square inches",
+          "D": "85π square inches"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 13,
+        "prompt": "If the area of a triangle is 72 square inches and its base is 12 inches, what is the length of the altitude to that base?",
+        "choices": {
+          "A": "6 inches",
+          "B": "12 inches",
+          "C": "24 inches",
+          "D": "36 inches"
+        },
+        "correct": "B"
+      }
+    ]
+  ]
+}

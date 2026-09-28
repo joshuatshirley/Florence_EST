@@ -1,0 +1,839 @@
+{
+  "tests": [
+    [
+      {
+        "n": 1,
+        "prompt": "A rucksack priced at $240.00 was reduced 25 percent during a clearance sale. In addition, there was a 10 percent discount for paying cash.\n\nWhat was the cash price during the sale?",
+        "choices": {
+          "A": "$156.00",
+          "B": "$162.00",
+          "C": "$216.00",
+          "D": "$180.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 2,
+        "prompt": "What is the difference between the square of 57 and the square of 43?",
+        "choices": {
+          "A": "1,400",
+          "B": "3,206",
+          "C": "196",
+          "D": "3,249"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 3,
+        "prompt": "A soldier earns $19.00 per hour with time-and-a-half paid for any hours worked beyond 8 in one day. One day the soldier worked 12 hours.\n\nHow much did the soldier earn that day?",
+        "choices": {
+          "A": "$304.00",
+          "B": "$266.00",
+          "C": "$228.00",
+          "D": "$342.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "What is the value of 2a² – 3a + 7 when a = 5?",
+        "choices": {
+          "A": "28",
+          "B": "72",
+          "C": "42",
+          "D": "92"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 5,
+        "prompt": "A generator's fuel tank holds enough to run for 1 hour and 40 minutes. Once full, the tank is refilled the instant it runs dry, keeping the generator running continuously.\n\nHow many times must the tank be refilled to run the generator from 7:20 A.M. to 3:50 P.M.?",
+        "choices": {
+          "A": "4",
+          "B": "6",
+          "C": "5",
+          "D": "7"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 6,
+        "prompt": "A generator was marked for sale at $630.00. This sale price was 30 percent less than the original price.\n\nWhat was the original price?",
+        "choices": {
+          "A": "$900.00",
+          "B": "$484.62",
+          "C": "$819.00",
+          "D": "$441.00"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 7,
+        "prompt": "What is the quotient when 0.936 is divided by 1.2?",
+        "choices": {
+          "A": "0.078",
+          "B": "78",
+          "C": "7.8",
+          "D": "0.78"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 8,
+        "prompt": "A company motor pool lot measures 12 feet in length and 9 feet in width. A second lot at the same installation measures 18 feet in length and 15 feet in width.\n\nWhat is the ratio of the area of the first lot to the area of the second lot?",
+        "choices": {
+          "A": "2:3",
+          "B": "3:5",
+          "C": "2:5",
+          "D": "5:2"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 9,
+        "prompt": "A welder is paid $168.00 for 12 hours of work.\n\nHow much should this welder be paid for working 27 hours at the same hourly rate?",
+        "choices": {
+          "A": "$378.00",
+          "B": "$4,536.00",
+          "C": "$183.00",
+          "D": "$74.67"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 10,
+        "prompt": "A briefing hall opens at 9:00 AM and closes at 9:30 PM. If one complete safety briefing takes 1 hour and 45 minutes, how many complete briefings can be given in the hall each day?",
+        "choices": {
+          "A": "8",
+          "B": "6",
+          "C": "7",
+          "D": "12"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 11,
+        "prompt": "An NCOIC and a junior soldier spent several days repainting the barracks. The ratio of the NCOIC's pay to the junior soldier's pay was 5:2. If the two were paid $700.00 total for the job, how much did the NCOIC receive?",
+        "choices": {
+          "A": "$200.00",
+          "B": "$350.00",
+          "C": "$1,750.00",
+          "D": "$500.00"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 12,
+        "prompt": "The price of a used pickup truck was increased from $8,000.00 to $9,200.00.\n\nWhat was the percentage increase?",
+        "choices": {
+          "A": "13%",
+          "B": "150%",
+          "C": "115%",
+          "D": "15%"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 13,
+        "prompt": "A family bought a sofa marked at $800.00. On the installment plan, they made a down payment equal to 20 percent of the marked price, plus 12 monthly payments of $60.00 each.\n\nHow much more than the marked price did they pay by buying it this way?",
+        "choices": {
+          "A": "$720.00",
+          "B": "$160.00",
+          "C": "$80.00",
+          "D": "$880.00"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 14,
+        "prompt": "Marcus's weekly pay was increased from $410.00 to $470.00.\n\nWhat was the increase in pay, to the nearest percent?",
+        "choices": {
+          "A": "1%",
+          "B": "13%",
+          "C": "15%",
+          "D": "115%"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 15,
+        "prompt": "If 3 pounds, 8 ounces of fish costs $8.75, what is the cost of the fish per pound?",
+        "choices": {
+          "A": "$30.63",
+          "B": "$2.92",
+          "C": "$2.50",
+          "D": "$0.80"
+        },
+        "correct": "C"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "A company motor pool lot measures 14 feet in length and 8 feet in width. A second lot at the same installation measures 21 feet in length and 20 feet in width.\n\nWhat is the ratio of the area of the first lot to the area of the second lot?",
+        "choices": {
+          "A": "2:3",
+          "B": "4:15",
+          "C": "2:5",
+          "D": "15:4"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 2,
+        "prompt": "At a unit fundraiser concert, floor seats sell for $25.00 each, and balcony seats sell for $12.00 each. If 240 floor seats were sold, and the box office collected $8,460.00, how many balcony seats were sold?",
+        "choices": {
+          "A": "685",
+          "B": "705",
+          "C": "98",
+          "D": "205"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 3,
+        "prompt": "A machinist is paid $234.00 for 18 hours of work.\n\nHow much should this machinist be paid for working 33 hours at the same hourly rate?",
+        "choices": {
+          "A": "$249.00",
+          "B": "$429.00",
+          "C": "$127.64",
+          "D": "$7,722.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "A supply clerk mixes 12 pounds of coffee worth $4.50 per pound with 8 pounds of coffee worth $7.50 per pound.\n\nAt what price per pound should the mixture be sold to reflect the same total value?",
+        "choices": {
+          "A": "$6.30",
+          "B": "$5.70",
+          "C": "$57.00",
+          "D": "$6.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 5,
+        "prompt": "In a certain city, a rideshare fare is $3.00 for the first mile, and $0.50 for each additional mile.\n\nHow far, in miles, can a passenger travel for $11.00?",
+        "choices": {
+          "A": "17 miles",
+          "B": "22 miles",
+          "C": "3.14 miles",
+          "D": "16 miles"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 6,
+        "prompt": "What is the value of 4a² – 5a + 9 when a = 3?",
+        "choices": {
+          "A": "12",
+          "B": "60",
+          "C": "138",
+          "D": "30"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 7,
+        "prompt": "What is the quotient when 0.504 is divided by 0.7?",
+        "choices": {
+          "A": "0.72",
+          "B": "7.2",
+          "C": "72",
+          "D": "0.072"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 8,
+        "prompt": "A gardener planted 200 bulbs, of which 170 sprouted.\n\nWhat percentage failed to sprout?",
+        "choices": {
+          "A": "85%",
+          "B": "25%",
+          "C": "15%",
+          "D": "18%"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 9,
+        "prompt": "What is the difference between the square of 64 and the square of 36?",
+        "choices": {
+          "A": "4,096",
+          "B": "784",
+          "C": "4,060",
+          "D": "2,800"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 10,
+        "prompt": "A tent priced at $480.00 was reduced 30 percent during a clearance sale. In addition, there was a 5 percent discount for paying cash.\n\nWhat was the cash price during the sale?",
+        "choices": {
+          "A": "$336.00",
+          "B": "$312.00",
+          "C": "$456.00",
+          "D": "$319.20"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 11,
+        "prompt": "The price of a generator was increased from $1,600.00 to $2,000.00.\n\nWhat was the percentage increase?",
+        "choices": {
+          "A": "20%",
+          "B": "250%",
+          "C": "25%",
+          "D": "125%"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 12,
+        "prompt": "A briefing hall opens at 8:30 AM and closes at 8:00 PM. If one complete safety briefing takes 2 hours and 5 minutes, how many complete briefings can be given in the hall each day?",
+        "choices": {
+          "A": "8",
+          "B": "5",
+          "C": "6",
+          "D": "4"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 13,
+        "prompt": "A convoy truck traveled 270 miles in 4 hours and 30 minutes.\n\nWhat was the average rate of speed, in miles per hour, for the trip?",
+        "choices": {
+          "A": "8 miles per hour",
+          "B": "60 miles per hour",
+          "C": "68 miles per hour",
+          "D": "1,215 miles per hour"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 14,
+        "prompt": "A soldier invests $4,000.00 at 4 percent annual interest. How much more must be invested at 6 percent annual interest so that the annual income from both investments totals $340.00?",
+        "choices": {
+          "A": "$4,500.00",
+          "B": "$5,666.67",
+          "C": "$1,666.67",
+          "D": "$3,000.00"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 15,
+        "prompt": "A family bought a refrigerator marked at $600.00. On the installment plan, they made a down payment equal to 25 percent of the marked price, plus 10 monthly payments of $48.00 each.\n\nHow much more than the marked price did they pay by buying it this way?",
+        "choices": {
+          "A": "$480.00",
+          "B": "$30.00",
+          "C": "$630.00",
+          "D": "$150.00"
+        },
+        "correct": "B"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "A supply clerk mixes 15 pounds of coffee worth $3.20 per pound with 10 pounds of coffee worth $6.20 per pound.\n\nAt what price per pound should the mixture be sold to reflect the same total value?",
+        "choices": {
+          "A": "$4.40",
+          "B": "$55.00",
+          "C": "$5.00",
+          "D": "$4.70"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 2,
+        "prompt": "In a supply room, 5 clerks each earn $620.00; 3 clerks each earn $480.00.\n\nWhat is the average weekly pay for these 8 workers?",
+        "choices": {
+          "A": "$648.57",
+          "B": "$2,270.00",
+          "C": "$567.50",
+          "D": "$550.00"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 3,
+        "prompt": "A briefing hall opens at 10:00 AM and closes at 10:40 PM. If one complete safety briefing takes 1 hour and 30 minutes, how many complete briefings can be given in the hall each day?",
+        "choices": {
+          "A": "8",
+          "B": "12",
+          "C": "9",
+          "D": "7"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 4,
+        "prompt": "At a charity boxing match, floor seats sell for $30.00 each, and balcony seats sell for $15.00 each. If 180 floor seats were sold, and the box office collected $9,150.00, how many balcony seats were sold?",
+        "choices": {
+          "A": "610",
+          "B": "598",
+          "C": "250",
+          "D": "125"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 5,
+        "prompt": "A soldier's bank balance was $3,186.00. Her next four transactions were as follows:\n\n-$412.00, +$588.00, +$715.00, -$260.00\n\nWhat was her bank balance after the fourth transaction had posted?",
+        "choices": {
+          "A": "$4,077.00",
+          "B": "$3,817.00",
+          "C": "$5,161.00",
+          "D": "$2,555.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 6,
+        "prompt": "A courier leaves a forward operating base driving at an average rate of 35 miles per hour but forgets part of the cargo manifest. 1 hour later, a second courier is dispatched with the missing paperwork and is instructed to overtake the first courier in 2.5 more hours.\n\nHow fast must the second courier travel?",
+        "choices": {
+          "A": "14 miles per hour",
+          "B": "35 miles per hour",
+          "C": "49 miles per hour",
+          "D": "122 miles per hour"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 7,
+        "prompt": "A supply helicopter traveled 350 miles in 2 hours and 20 minutes.\n\nWhat was the average rate of speed, in miles per hour, for the trip?",
+        "choices": {
+          "A": "175 miles per hour",
+          "B": "817 miles per hour",
+          "C": "150 miles per hour",
+          "D": "16 miles per hour"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 8,
+        "prompt": "A soldier invests $9,000.00 at 3 percent annual interest. How much more must be invested at 5 percent annual interest so that the annual income from both investments totals $510.00?",
+        "choices": {
+          "A": "$4,800.00",
+          "B": "$8,000.00",
+          "C": "$1,200.00",
+          "D": "$10,200.00"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 9,
+        "prompt": "The wholesale list price of a field radio is $80.00. A supply sergeant buys a shipment at a discount of 25 percent and sells them at 15 percent above the wholesale list price.\n\nWhat was the profit on each item?",
+        "choices": {
+          "A": "$32.00",
+          "B": "$12.00",
+          "C": "$92.00",
+          "D": "$20.00"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 10,
+        "prompt": "What is the value of 3a² – 6a + 4 when a = 6?",
+        "choices": {
+          "A": "292",
+          "B": "76",
+          "C": "148",
+          "D": "68"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 11,
+        "prompt": "A mess hall sold 14 gallons of milk at 30 cents a pint.\n\nHow much did the mess hall receive for the milk?",
+        "choices": {
+          "A": "$33.60",
+          "B": "$16.80",
+          "C": "$4.20",
+          "D": "$3,360.00"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 12,
+        "prompt": "A family bought a washing machine marked at $500.00. On the installment plan, they made a down payment equal to 10 percent of the marked price, plus 12 monthly payments of $42.00 each.\n\nHow much more than the marked price did they pay by buying it this way?",
+        "choices": {
+          "A": "$50.00",
+          "B": "$554.00",
+          "C": "$54.00",
+          "D": "$504.00"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 13,
+        "prompt": "A scale drawing of a motor pool has a scale of 1 inch to 30 feet.\n\nHow many inches on the drawing represent an actual distance of 210 feet?",
+        "choices": {
+          "A": "70 inches",
+          "B": "7 inches",
+          "C": "0.70 inches",
+          "D": "6,300 inches"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 14,
+        "prompt": "In a certain city, a rideshare fare is $2.50 for the first mile, and $0.25 for each additional mile.\n\nHow far, in miles, can a passenger travel for $8.00?",
+        "choices": {
+          "A": "32 miles",
+          "B": "23 miles",
+          "C": "2.91 miles",
+          "D": "22 miles"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 15,
+        "prompt": "A quality inspector tested 250 circuit boards, of which 225 passed.\n\nWhat percentage failed?",
+        "choices": {
+          "A": "20%",
+          "B": "90%",
+          "C": "10%",
+          "D": "11%"
+        },
+        "correct": "C"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "Out of 25 qualification attempts on the rifle range, a soldier hit the target 20 times.\n\nWhat percent of the attempts were successful?",
+        "choices": {
+          "A": "80%",
+          "B": "20%",
+          "C": "400%",
+          "D": "8%"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 2,
+        "prompt": "A soldier earns $16.00 per hour with time-and-a-half paid for any hours worked beyond 8 in one day. One day the soldier worked 11 hours.\n\nHow much did the soldier earn that day?",
+        "choices": {
+          "A": "$264.00",
+          "B": "$240.00",
+          "C": "$200.00",
+          "D": "$176.00"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 3,
+        "prompt": "A supply clerk mixes 20 pounds of coffee worth $2.40 per pound with 5 pounds of coffee worth $7.40 per pound.\n\nAt what price per pound should the mixture be sold to reflect the same total value?",
+        "choices": {
+          "A": "$3.40",
+          "B": "$6.40",
+          "C": "$42.50",
+          "D": "$4.90"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 4,
+        "prompt": "Diego's weekly pay was increased from $320.00 to $364.00.\n\nWhat was the increase in pay, to the nearest percent?",
+        "choices": {
+          "A": "12%",
+          "B": "1%",
+          "C": "114%",
+          "D": "14%"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 5,
+        "prompt": "A square parade field measures 12 feet on a side. If each side of the square is increased by 4 feet, how many square feet are added to the area?",
+        "choices": {
+          "A": "256 square feet",
+          "B": "16 square feet",
+          "C": "112 square feet",
+          "D": "96 square feet"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 6,
+        "prompt": "A scale drawing of a motor pool has a scale of 1 inch to 25 feet.\n\nHow many inches on the drawing represent an actual distance of 275 feet?",
+        "choices": {
+          "A": "11 inches",
+          "B": "110 inches",
+          "C": "1.10 inches",
+          "D": "6,875 inches"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 7,
+        "prompt": "In a certain city, a rideshare fare is $4.00 for the first mile, and $0.40 for each additional mile.\n\nHow far, in miles, can a passenger travel for $13.60?",
+        "choices": {
+          "A": "34 miles",
+          "B": "25 miles",
+          "C": "24 miles",
+          "D": "3.09 miles"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 8,
+        "prompt": "The perimeter of a rectangular motor pool bay is 50 feet. If the length is 17 feet, 6 inches, what is the width of the bay?",
+        "choices": {
+          "A": "8 feet, 0 inches",
+          "B": "7 feet, 6 inches",
+          "C": "2 feet, 0 inches",
+          "D": "32 feet, 6 inches"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 9,
+        "prompt": "In a supply room, 4 clerks each earn $540.00; 2 clerks each earn $660.00.\n\nWhat is the average weekly pay for these 6 workers?",
+        "choices": {
+          "A": "$1,740.00",
+          "B": "$580.00",
+          "C": "$600.00",
+          "D": "$696.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 10,
+        "prompt": "A commuter train traveled 255 miles in 3 hours and 24 minutes.\n\nWhat was the average rate of speed, in miles per hour, for the trip?",
+        "choices": {
+          "A": "9 miles per hour",
+          "B": "867 miles per hour",
+          "C": "75 miles per hour",
+          "D": "85 miles per hour"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 11,
+        "prompt": "The wholesale list price of a tactical flashlight is $40.00. A supply sergeant buys a shipment at a discount of 20 percent and sells them at 10 percent above the wholesale list price.\n\nWhat was the profit on each item?",
+        "choices": {
+          "A": "$44.00",
+          "B": "$4.00",
+          "C": "$8.00",
+          "D": "$12.00"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 12,
+        "prompt": "A soldier's bank balance was $4,520.00. Her next four transactions were as follows:\n\n-$680.00, -$95.00, +$940.00, +$310.00\n\nWhat was her bank balance after the fourth transaction had posted?",
+        "choices": {
+          "A": "$6,545.00",
+          "B": "$4,995.00",
+          "C": "$4,045.00",
+          "D": "$4,685.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 13,
+        "prompt": "A courier leaves a forward operating base driving at an average rate of 28 miles per hour but forgets part of the cargo manifest. 2 hours later, a second courier is dispatched with the missing paperwork and is instructed to overtake the first courier in 4 more hours.\n\nHow fast must the second courier travel?",
+        "choices": {
+          "A": "168 miles per hour",
+          "B": "14 miles per hour",
+          "C": "42 miles per hour",
+          "D": "28 miles per hour"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 14,
+        "prompt": "An NCOIC and a junior soldier spent several days repainting the barracks. The ratio of the NCOIC's pay to the junior soldier's pay was 3:1. If the two were paid $640.00 total for the job, how much did the NCOIC receive?",
+        "choices": {
+          "A": "$1,920.00",
+          "B": "$160.00",
+          "C": "$480.00",
+          "D": "$320.00"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 15,
+        "prompt": "A mess hall sold 9 gallons of milk at 45 cents a pint.\n\nHow much did the mess hall receive for the milk?",
+        "choices": {
+          "A": "$32.40",
+          "B": "$3,240.00",
+          "C": "$4.05",
+          "D": "$16.20"
+        },
+        "correct": "A"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "A field cot priced at $160.00 was reduced 20 percent during a clearance sale. In addition, there was a 10 percent discount for paying cash.\n\nWhat was the cash price during the sale?",
+        "choices": {
+          "A": "$144.00",
+          "B": "$115.20",
+          "C": "$112.00",
+          "D": "$128.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 2,
+        "prompt": "A company motor pool lot measures 16 feet in length and 10 feet in width. A second lot at the same installation measures 32 feet in length and 15 feet in width.\n\nWhat is the ratio of the area of the first lot to the area of the second lot?",
+        "choices": {
+          "A": "2:3",
+          "B": "1:3",
+          "C": "1:2",
+          "D": "3:1"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 3,
+        "prompt": "What is the quotient when 0.848 is divided by 0.8?",
+        "choices": {
+          "A": "106",
+          "B": "0.106",
+          "C": "1.06",
+          "D": "10.6"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 4,
+        "prompt": "A generator's fuel tank holds enough to run for 1 hour and 30 minutes. Once full, the tank is refilled the instant it runs dry, keeping the generator running continuously.\n\nHow many times must the tank be refilled to run the generator from 6:00 A.M. to 2:00 P.M.?",
+        "choices": {
+          "A": "6",
+          "B": "5",
+          "C": "7",
+          "D": "4"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 5,
+        "prompt": "If 2 pounds, 4 ounces of fish costs $4.50, what is the cost of the fish per pound?",
+        "choices": {
+          "A": "$10.13",
+          "B": "$2.00",
+          "C": "$0.75",
+          "D": "$2.25"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 6,
+        "prompt": "A soldier earns $14.50 per hour with time-and-a-half paid for any hours worked beyond 8 in one day. One day the soldier worked 10 hours.\n\nHow much did the soldier earn that day?",
+        "choices": {
+          "A": "$145.00",
+          "B": "$217.50",
+          "C": "$203.00",
+          "D": "$159.50"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 7,
+        "prompt": "In a supply room, 6 clerks each earn $410.00; 2 clerks each earn $590.00.\n\nWhat is the average weekly pay for these 8 workers?",
+        "choices": {
+          "A": "$500.00",
+          "B": "$455.00",
+          "C": "$1,820.00",
+          "D": "$520.00"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 8,
+        "prompt": "A field desk was marked for sale at $255.00. This sale price was 15 percent less than the original price.\n\nWhat was the original price?",
+        "choices": {
+          "A": "$221.74",
+          "B": "$216.75",
+          "C": "$293.25",
+          "D": "$300.00"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 9,
+        "prompt": "An NCOIC and a junior soldier spent several days repainting the barracks. The ratio of the NCOIC's pay to the junior soldier's pay was 2:1. If the two were paid $585.00 total for the job, how much did the NCOIC receive?",
+        "choices": {
+          "A": "$390.00",
+          "B": "$195.00",
+          "C": "$292.50",
+          "D": "$1,170.00"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 10,
+        "prompt": "The perimeter of a rectangular motor pool bay is 36 feet. If the length is 11 feet, 8 inches, what is the width of the bay?",
+        "choices": {
+          "A": "24 feet, 4 inches",
+          "B": "6 feet, 4 inches",
+          "C": "1 foot, 0 inches",
+          "D": "6 feet, 10 inches"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 11,
+        "prompt": "A mess hall sold 20 gallons of milk at 25 cents a pint.\n\nHow much did the mess hall receive for the milk?",
+        "choices": {
+          "A": "$5.00",
+          "B": "$4,000.00",
+          "C": "$20.00",
+          "D": "$40.00"
+        },
+        "correct": "D"
+      },
+      {
+        "n": 12,
+        "prompt": "Priya's weekly pay was increased from $275.00 to $305.00.\n\nWhat was the increase in pay, to the nearest percent?",
+        "choices": {
+          "A": "11%",
+          "B": "111%",
+          "C": "1%",
+          "D": "10%"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 13,
+        "prompt": "A unit fired 40 practice rounds during gunnery training, and 34 hit their marks.\n\nWhat percent of the attempts were successful?",
+        "choices": {
+          "A": "15%",
+          "B": "567%",
+          "C": "85%",
+          "D": "8%"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 14,
+        "prompt": "The wholesale list price of a canteen set is $25.00. A supply sergeant buys a shipment at a discount of 30 percent and sells them at 20 percent above the wholesale list price.\n\nWhat was the profit on each item?",
+        "choices": {
+          "A": "$30.00",
+          "B": "$7.50",
+          "C": "$12.50",
+          "D": "$5.00"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 15,
+        "prompt": "A square parade field measures 20 feet on a side. If each side of the square is increased by 5 feet, how many square feet are added to the area?",
+        "choices": {
+          "A": "225 square feet",
+          "B": "200 square feet",
+          "C": "25 square feet",
+          "D": "625 square feet"
+        },
+        "correct": "A"
+      }
+    ]
+  ]
+}

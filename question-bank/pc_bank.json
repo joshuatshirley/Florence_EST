@@ -1,0 +1,454 @@
+{
+  "tests": [
+    [
+      {
+        "n": 1,
+        "prompt": "Fire extinguishers are labeled by class according to the type of fire they are designed to put out. Class A extinguishers are used on ordinary combustibles like wood, paper, and cloth. Class B extinguishers are made for flammable liquids such as gasoline or grease. Class C extinguishers are rated for fires involving live electrical equipment. Using the wrong class on an electrical fire, such as spraying water from a Class A extinguisher, can cause a dangerous shock. Most workplaces keep a multi-purpose ABC extinguisher on hand so a single unit can handle more than one type of fire.\n\nAccording to the passage, why is it dangerous to use a Class A extinguisher on an electrical fire?",
+        "choices": {
+          "A": "It will not stop the flames from spreading",
+          "B": "The water it sprays can cause a dangerous shock",
+          "C": "It is only rated for flammable liquids",
+          "D": "It runs out too quickly to be useful"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 2,
+        "prompt": "A vacuum flask, commonly called a thermos, keeps liquids hot or cold by slowing the transfer of heat rather than stopping it entirely. Between its inner and outer walls is a sealed space with most of the air removed. Because heat needs matter to travel through by conduction, removing the air greatly reduces how quickly warmth escapes from a hot drink or enters a cold one. The walls are also often coated with a reflective layer to cut down on heat lost through radiation. Over many hours, though, a small amount of heat still passes through the seal near the lid, so the drink slowly returns to room temperature.\n\nIt can be inferred from the passage that a vacuum flask eventually...",
+        "choices": {
+          "A": "stops working permanently once it is opened",
+          "B": "keeps a drink at its original temperature forever",
+          "C": "allows a drink to gradually reach room temperature",
+          "D": "cools hot drinks faster than it warms cold ones"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 3,
+        "prompt": "For a minor sprain, the standard first-aid advice is to remember the acronym RICE. Rest means avoiding activity that puts weight or strain on the injured area. Ice should be applied for short periods to reduce swelling, never placed directly on bare skin for more than about twenty minutes at a time. Compression, usually with an elastic bandage wrapped snugly but not tightly, helps limit swelling further. Elevation means raising the injured limb above the level of the heart when possible. None of these steps replace a doctor's evaluation, but together they can reduce pain and swelling in the first day or two after an injury.\n\nAccording to the passage, how should ice be applied to a sprain?",
+        "choices": {
+          "A": "Directly on bare skin for at least twenty minutes",
+          "B": "For short periods, not placed directly on bare skin",
+          "C": "Only after compression has already been applied",
+          "D": "Continuously until all swelling is completely gone"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "Before the mid-1400s, books in Europe were copied out by hand, a slow process that made them expensive and rare. The introduction of the movable-type printing press changed this by allowing individual metal letters to be arranged, inked, and pressed onto paper again and again. A single press could produce hundreds of copies of a page in the time it once took a scribe to copy a handful by hand. This drop in cost meant that books, and the ideas inside them, could reach far more people than before, including readers outside the wealthy classes who had previously been the only ones able to afford them.\n\nThe main idea of this passage is that the printing press...",
+        "choices": {
+          "A": "was invented by a scribe who was frustrated with hand-copying",
+          "B": "made books available to a much wider range of people",
+          "C": "was used mainly to print religious texts",
+          "D": "replaced the need for readers to learn to read"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 5,
+        "prompt": "A hydraulic jack is designed to lift a vehicle, not to hold it in the air while someone works underneath it. Jacks can fail suddenly if a seal leaks or the vehicle shifts, so mechanics always place a jack stand under the frame once the vehicle is raised to the needed height. The jack itself is then lowered slightly so the vehicle's weight rests on the stand rather than the jack. Only after the stand is firmly supporting the weight should anyone slide underneath the vehicle to begin work.\n\nAccording to the passage, once a vehicle is raised and a jack stand is in place, a mechanic should next...",
+        "choices": {
+          "A": "remove the jack stand and rely on the jack alone",
+          "B": "lower the jack so the stand bears the weight",
+          "C": "begin work without checking whether the stand is secure",
+          "D": "raise the vehicle even higher before starting work"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 6,
+        "prompt": "The ZIP code system used by the United States Postal Service groups mail by geographic region to speed up sorting and delivery. The first digit represents a broad group of states, and each digit after narrows the location further, down to a specific delivery area or even a single large building. Automated scanners read the code printed on an envelope and route it toward the correct regional facility before a single piece of mail is touched by human hands. A letter addressed with the wrong ZIP code can still arrive, but it usually takes longer because it must be rerouted once the error is caught.\n\nWhat happens to a letter addressed with an incorrect ZIP code, according to the passage?",
+        "choices": {
+          "A": "It is destroyed by the automated scanner",
+          "B": "It is returned to the sender immediately",
+          "C": "It can still arrive, but delivery is usually delayed",
+          "D": "It is delivered only if a postal worker happens to notice the error"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 7,
+        "prompt": "Weather describes what is happening in the atmosphere at a particular place and time, such as today's rain or this afternoon's wind. Climate, on the other hand, describes the average pattern of weather in a region over many years, such as a desert's typical dryness or a coastal city's mild winters. A single unusually cold week does not mean a region's climate is changing, just as one hot summer does not prove long-term warming. Scientists studying climate look at decades of data rather than any single day's conditions to draw conclusions about lasting trends.\n\nBased on the passage, a single unusually cold week in a region is best described as...",
+        "choices": {
+          "A": "proof that the region's climate is cooling",
+          "B": "an example of weather, not a change in climate",
+          "C": "irrelevant to both weather and climate",
+          "D": "evidence that climate scientists have made an error"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 8,
+        "prompt": "When money is deposited in an account that pays compound interest, the bank pays interest not only on the original deposit but also on the interest that has already been added. Over time, this means the account balance grows faster than it would with simple interest, which pays only on the original amount each year. A deposit left untouched for many years can grow substantially larger under compound interest than the same deposit would under simple interest, because each year's interest becomes part of the balance that earns interest the following year.\n\nAccording to the passage, why does compound interest cause an account to grow faster than simple interest?",
+        "choices": {
+          "A": "Compound interest is only offered on very large deposits",
+          "B": "Compound interest is added just once, at the very end",
+          "C": "Interest is earned on previously earned interest as well as the original deposit",
+          "D": "Simple interest accounts do not allow any withdrawals"
+        },
+        "correct": "C"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "A circuit breaker protects the wiring in a building by automatically shutting off the flow of electricity when a circuit draws more current than it is designed to carry. Without this protection, an overloaded wire could overheat and start a fire. When a breaker \"trips,\" it can usually be reset by flipping the switch back to its on position, but if it trips again right away, that is a sign of a deeper electrical problem that should be checked before resetting it further. Breakers are rated for a specific amperage, and swapping in one rated too high defeats the safety feature.\n\nAccording to the passage, what does it mean if a circuit breaker trips again immediately after being reset?",
+        "choices": {
+          "A": "The breaker is rated too low for the circuit",
+          "B": "There is likely a deeper electrical problem",
+          "C": "The wiring has been permanently repaired",
+          "D": "The circuit is now safe to overload"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 2,
+        "prompt": "Completed in 1825, the Erie Canal connected the Hudson River to Lake Erie, giving merchants a water route between the Atlantic coast and the Great Lakes region. Before the canal, shipping goods overland to the interior of the country was slow and costly, often taking weeks by wagon. The canal cut travel time dramatically and lowered shipping costs enough that towns along its route grew quickly as trade increased. Its success encouraged other states to build canals of their own, spreading a similar network of inland waterways across the country in the following decades.\n\nThe main idea of this passage is that the Erie Canal...",
+        "choices": {
+          "A": "was the first canal ever built in North America",
+          "B": "made overland wagon travel completely unnecessary",
+          "C": "reduced shipping costs and spurred growth and further canal building",
+          "D": "connected the Atlantic Ocean directly to the Pacific Ocean"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 3,
+        "prompt": "At an intersection with stop signs on all four approaches, the basic rule is that the first vehicle to come to a complete stop has the right of way to proceed first. If two vehicles arrive at roughly the same time, the driver on the right is generally given the right of way over the driver on the left. These rules only work smoothly, however, when every driver comes to a full stop and waits their turn rather than assuming other drivers will yield.\n\nAccording to the passage, if two vehicles reach a four-way stop at the same time, who generally has the right of way?",
+        "choices": {
+          "A": "Whichever driver arrived a moment earlier, regardless of position",
+          "B": "The driver on the right",
+          "C": "The driver on the left",
+          "D": "Whichever vehicle is larger"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "A vaccine works by introducing a weakened or inactive piece of a virus or bacterium into the body, not enough to cause the actual illness, but enough for the immune system to recognize it as a threat. In response, the immune system produces antibodies and creates memory cells that \"remember\" that specific invader. If the real, active version of that virus or bacterium is encountered later, the immune system can respond much faster than it would have without the vaccine, often stopping the infection before it causes noticeable illness.\n\nIt can be inferred from the passage that a vaccinated person who encounters the real virus later will...",
+        "choices": {
+          "A": "always develop a severe case of the illness",
+          "B": "have an immune system that reacts more quickly than an unvaccinated person's",
+          "C": "no longer have any immune system response at all",
+          "D": "require a new vaccine before their body can respond"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 5,
+        "prompt": "Most office buildings post evacuation maps near elevators and stairwells showing at least two possible routes out of the building from every floor. Employees are trained to use the stairs rather than elevators during a fire, since elevators can stop working or open onto a floor filled with smoke. Exit doors along these routes are required to remain unlocked and unobstructed during business hours so that people can leave quickly without needing a key or having to move furniture or boxes blocking the path.\n\nAccording to the passage, why are employees trained to avoid elevators during a fire?",
+        "choices": {
+          "A": "Elevators move too slowly to be useful in any situation",
+          "B": "Elevators can malfunction or open onto a smoke-filled floor",
+          "C": "Elevators are reserved for firefighters only",
+          "D": "Stairwells are always located closer to the exits"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 6,
+        "prompt": "The serving size listed on a nutrition label is not necessarily how much a person typically eats in one sitting; it is a standardized amount set so that different brands of a similar food can be compared fairly. A bag of chips might list a serving size of about one ounce, even though many people eat two or three times that amount in one sitting. Because the calorie and fat counts on the label apply only to that single listed serving, anyone eating more than one serving needs to multiply the numbers accordingly to know what they actually consumed.\n\nAccording to the passage, why is the serving size on a nutrition label useful for comparing brands?",
+        "choices": {
+          "A": "It reflects exactly how much most people eat at once",
+          "B": "It is a standardized amount, allowing fair comparison between products",
+          "C": "It always equals one full package of the food",
+          "D": "It changes depending on which brand is being sold"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 7,
+        "prompt": "Many city governments in the United States divide power among three groups, similar in spirit to the federal system. An elected city council makes local laws and approves the budget. A mayor or city manager carries out those laws and manages day-to-day city operations. Municipal courts handle violations of local ordinances, such as parking or building code disputes, separately from the state court system. This division is meant to keep any single office from holding too much authority over city affairs.\n\nThe main idea of this passage is that city governments often...",
+        "choices": {
+          "A": "rely entirely on the state government to make local laws",
+          "B": "divide authority among separate branches to limit any one office's power",
+          "C": "eliminate the need for local courts",
+          "D": "give the mayor complete control over all city decisions"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 8,
+        "prompt": "Sedimentary rock forms when small particles of sand, silt, or mineral fragments settle out of water or wind and slowly pile up in layers over long periods of time. As more layers accumulate, the weight of the material above presses down on the layers below, squeezing out water and compacting the particles together. Minerals dissolved in groundwater can then seep through the compacted layers and act as a natural cement, binding the particles into solid rock. This layered structure is often visible as distinct bands when a cross-section of sedimentary rock is exposed, such as in a canyon wall.\n\nAccording to the passage, what role do dissolved minerals in groundwater play in forming sedimentary rock?",
+        "choices": {
+          "A": "They dissolve the compacted particles back into loose sand",
+          "B": "They act as a natural cement, binding the particles together",
+          "C": "They prevent any layers from forming in the first place",
+          "D": "They cause the rock to remain soft and crumbly"
+        },
+        "correct": "B"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "The bowline is a knot valued for forming a secure loop that will not slip or tighten under load, yet can still be untied relatively easily even after it has held significant weight. This makes it useful whenever a fixed loop is needed at the end of a rope, such as when hoisting equipment or securing a line to a post. Unlike a slip knot, which cinches tighter the more it is pulled, the bowline's loop stays a fixed size no matter how hard the rope is pulled, which is exactly why it is trusted in situations where a shifting or tightening loop could be dangerous.\n\nBased on the passage, why might a slip knot be a poor choice for hoisting equipment compared to a bowline?",
+        "choices": {
+          "A": "A slip knot cannot hold any weight at all",
+          "B": "A slip knot's loop tightens under load instead of staying fixed",
+          "C": "A slip knot is harder to tie than a bowline",
+          "D": "A slip knot is only used for decorative purposes"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 2,
+        "prompt": "Daylight saving time, the practice of setting clocks forward by one hour in spring and back again in fall, was widely adopted in the United States during World War I as a way to conserve fuel. Moving clocks forward shifted an extra hour of natural daylight into the evening, reducing the need for artificial lighting during waking hours. The practice was repealed after the war ended but was later reinstated during World War II for the same energy-saving reason, and various forms of it have continued in many states since.\n\nAccording to the passage, why was daylight saving time first widely adopted in the United States?",
+        "choices": {
+          "A": "To give farmers more daylight in the early morning",
+          "B": "To conserve fuel by reducing the need for artificial lighting",
+          "C": "To align American clocks with European time zones",
+          "D": "To extend the length of the school day"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 3,
+        "prompt": "A septic system treats household wastewater on-site rather than sending it to a municipal sewer. Wastewater first flows into a buried septic tank, where solids settle to the bottom and are broken down slowly by bacteria, while lighter material floats to the top. The partially treated liquid in the middle then flows out into a drain field, a network of buried perforated pipes, where it filters slowly through the soil, which removes remaining contaminants before the water rejoins the groundwater supply. Solid waste that does not break down must be pumped out periodically or the tank can overflow.\n\nAccording to the passage, what happens to the liquid wastewater after it leaves the septic tank?",
+        "choices": {
+          "A": "It is pumped directly into a municipal sewer",
+          "B": "It flows into a drain field and filters through the soil",
+          "C": "It evaporates before ever reaching the drain field",
+          "D": "It is stored permanently inside the tank"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "A jury summons is a legal notice requiring a randomly selected citizen to report for possible jury service on a specific date. Being summoned does not guarantee a person will actually sit on a jury; many people who report are questioned by attorneys during a process called voir dire and are excused if the attorneys believe they cannot judge the case fairly. Ignoring a jury summons without a valid excuse, however, can result in a fine or other penalty, since jury service is treated as a civic obligation rather than an optional invitation.\n\nAccording to the passage, what happens to someone who ignores a jury summons without a valid excuse?",
+        "choices": {
+          "A": "They are automatically placed on the jury",
+          "B": "They may face a fine or other penalty",
+          "C": "Their name is removed from all future jury pools",
+          "D": "They are simply asked to reschedule for a later date"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 5,
+        "prompt": "A thermostat regulates a home's temperature by comparing the room's current temperature to a target temperature the resident has set. When the room drops below that target, the thermostat signals the heating system to turn on; once the room reaches the target temperature, it signals the system to shut off again. Many thermostats include a small buffer, so the heat does not switch on and off every time the temperature drifts a fraction of a degree, which would wear out the heating equipment much faster.\n\nIt can be inferred from the passage that the buffer built into many thermostats mainly serves to...",
+        "choices": {
+          "A": "keep the room colder than the set temperature",
+          "B": "prevent the heating system from switching on and off too frequently",
+          "C": "eliminate the need for a target temperature",
+          "D": "make the heating system run constantly"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 6,
+        "prompt": "When a tire goes flat while driving, the recommended response is to avoid braking hard or turning sharply, since either can cause the vehicle to lose control. Instead, a driver should ease off the accelerator and let the car slow gradually while steering firmly to keep it straight. Once the vehicle has slowed enough, the driver should signal and pull well off the roadway, ideally onto a flat shoulder away from traffic, before stopping completely to change the tire or call for assistance.\n\nAccording to the passage, what should a driver avoid doing immediately after a tire goes flat?",
+        "choices": {
+          "A": "Steering firmly to keep the car straight",
+          "B": "Braking hard or turning sharply",
+          "C": "Signaling before pulling off the road",
+          "D": "Slowing the vehicle down gradually"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 7,
+        "prompt": "The Pony Express operated for only about eighteen months in 1860 and 1861, carrying mail across nearly two thousand miles between Missouri and California using a relay of horseback riders. Riders changed horses every ten to fifteen miles at relay stations and switched to a fresh rider after roughly seventy-five miles, allowing a piece of mail to cross the country in about ten days, far faster than existing stagecoach routes. Despite its fame, the service was never very profitable and shut down once the transcontinental telegraph made instant long-distance communication possible.\n\nAccording to the passage, what ultimately caused the Pony Express to shut down?",
+        "choices": {
+          "A": "A lack of qualified riders",
+          "B": "The completion of the transcontinental telegraph",
+          "C": "Poor weather along its route",
+          "D": "A government ban on horseback mail delivery"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 8,
+        "prompt": "Composting turns kitchen and yard waste into a nutrient-rich material that can be added to garden soil. The process relies on a mix of \"green\" materials, such as fruit scraps and grass clippings, which supply nitrogen, and \"brown\" materials, such as dried leaves and cardboard, which supply carbon. Microorganisms break down this mixture over weeks or months, and turning the pile occasionally with a shovel or pitchfork adds oxygen that speeds up the breakdown and helps prevent bad odors from developing.\n\nAccording to the passage, what is the purpose of occasionally turning a compost pile?",
+        "choices": {
+          "A": "To separate the green materials from the brown materials",
+          "B": "To add oxygen that speeds decomposition and reduces odor",
+          "C": "To keep microorganisms from breaking down the material",
+          "D": "To cool the pile down before it can be used"
+        },
+        "correct": "B"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "Most smoke detectors include a test button that lets a resident check whether the alarm's electronics and speaker are working without needing to create actual smoke. Pressing the button triggers the alarm sound the same way smoke would, confirming the circuitry functions and the battery has enough power to sound the alert. Fire safety experts recommend testing detectors monthly this way, because a detector's sensor can fail silently over time even while the unit otherwise looks normal, and battery-powered units eventually run low no matter how new the detector appears.\n\nAccording to the passage, why do fire safety experts recommend regularly using a smoke detector's test button?",
+        "choices": {
+          "A": "It replaces the need to ever change the battery",
+          "B": "A detector's sensor or battery can fail without any visible sign",
+          "C": "It clears smoke that has built up inside the unit",
+          "D": "It is only necessary when the detector is brand new"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 2,
+        "prompt": "Public libraries set due dates on borrowed books so that materials in demand can circulate to other patrons rather than staying with one borrower indefinitely. Many libraries allow a book to be renewed online before the due date if no one else has placed a hold on it, extending the borrowing period without a trip back to the building. If a hold has been placed by another patron, however, the system usually blocks the renewal, since letting one borrower keep extending the loan would leave the waiting patron without access to the book.\n\nIt can be inferred from the passage that a library blocks a renewal mainly when...",
+        "choices": {
+          "A": "the book is more than a year overdue",
+          "B": "another patron has placed a hold on that book",
+          "C": "the borrower has never renewed a book before",
+          "D": "the library is closed for a holiday"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 3,
+        "prompt": "Nutrition guidelines commonly recommend picturing a meal as a plate divided into sections rather than counting every calorie. Roughly half the plate is filled with vegetables and fruit, about a quarter with a protein source such as meat, beans, or fish, and the remaining quarter with a grain such as rice, pasta, or bread. This visual method is meant to make balanced eating easier to plan without needing detailed nutritional information for every food, since the proportions alone tend to keep a typical meal within a reasonable range of nutrients.\n\nThe main idea of this passage is that the plate method is designed to...",
+        "choices": {
+          "A": "eliminate the need to eat any grains",
+          "B": "make balanced eating simpler without detailed calorie counting",
+          "C": "require weighing every ingredient before a meal",
+          "D": "replace vegetables entirely with protein"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "The First Transcontinental Railroad, completed in 1869, linked the existing eastern rail network to California by joining two lines built from opposite directions. The Central Pacific Railroad laid track eastward from Sacramento, while the Union Pacific Railroad laid track westward from Nebraska, and the two met at Promontory Summit in Utah, where a ceremonial final spike was driven. Before its completion, a trip across the country by wagon could take months; afterward, the same journey by rail could be made in about a week.\n\nAccording to the passage, where did the two railroad companies' tracks meet?",
+        "choices": {
+          "A": "Sacramento, California",
+          "B": "Promontory Summit, Utah",
+          "C": "Omaha, Nebraska",
+          "D": "Somewhere along the Mississippi River"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 5,
+        "prompt": "Perishable foods such as raw meat, dairy, and cut produce should be kept at or below 40 degrees Fahrenheit to slow the growth of bacteria that cause spoilage and foodborne illness. Between 40 and 140 degrees, often called the \"danger zone,\" bacteria can multiply rapidly, so perishable food left out at room temperature should not sit for more than about two hours before being refrigerated or discarded. On a hot day, that safe window shrinks to about one hour, since warmer air temperatures speed up bacterial growth even further.\n\nAccording to the passage, how does a hot day affect the safe time perishable food can sit out?",
+        "choices": {
+          "A": "It has no effect on the safe time window",
+          "B": "It extends the safe window to four hours",
+          "C": "It shortens the safe window to about one hour",
+          "D": "It only affects dairy products, not meat"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 6,
+        "prompt": "At many public pools, lifeguards rotate between different watch positions every twenty to thirty minutes rather than staying at one station for an entire shift. Continuously scanning a crowded pool for signs of trouble is mentally demanding, and attention naturally drifts after sustained focus on the same area. By rotating positions regularly, pools keep each lifeguard's attention sharper than it would be if a single guard watched the same water for hours without a break, reducing the chance that a struggling swimmer goes unnoticed.\n\nIt can be inferred from the passage that rotating lifeguard positions is intended mainly to...",
+        "choices": {
+          "A": "give lifeguards a chance to socialize with each other",
+          "B": "keep each lifeguard's attention sharp and reduce missed emergencies",
+          "C": "train new lifeguards on every part of the pool",
+          "D": "reduce the total number of lifeguards needed per shift"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 7,
+        "prompt": "A pulley changes the amount of force needed to lift a load by redirecting or dividing the effort across one or more rope segments. A single fixed pulley mainly changes the direction of the pulling force, making it easier to pull down on a rope rather than lift straight up, without reducing how hard a person must pull. Adding a second, movable pulley to the system divides the load's weight across two rope segments, so the person pulling only has to exert about half the force, though they must pull the rope twice as far to raise the load the same distance.\n\nAccording to the passage, what is the main advantage of adding a movable pulley to a single fixed pulley?",
+        "choices": {
+          "A": "It eliminates the need to pull any rope at all",
+          "B": "It reduces the force needed to lift the load, at the cost of pulling farther",
+          "C": "It doubles the force needed but shortens the pulling distance",
+          "D": "It only changes the direction of the pull, not the force required"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 8,
+        "prompt": "Before the late 1800s, most towns in the United States set their clocks according to local solar noon, meaning the exact time could differ from one town to the next even a short distance apart. This created serious scheduling problems for railroads, which needed a consistent way to coordinate train departures and arrivals across long distances. In 1883, American and Canadian railroads adopted a system of standardized time zones to solve this problem, and the change was so practical that towns across the country soon adjusted their public clocks to match, even before the government formally adopted the system into law years later.\n\nAccording to the passage, what problem led railroads to adopt standardized time zones?",
+        "choices": {
+          "A": "Local solar noon time made it hard to coordinate train schedules across distances",
+          "B": "The government required railroads to change their schedules",
+          "C": "Passengers complained about ticket prices",
+          "D": "Trains could not run safely at night without standardized time"
+        },
+        "correct": "A"
+      }
+    ],
+    [
+      {
+        "n": 1,
+        "prompt": "Small claims court offers a simpler, faster way to resolve minor legal disputes, typically involving amounts of money below a limit set by each state, without requiring either side to hire a lawyer. A person who believes they are owed money, such as for unpaid rent or a broken contract, can file a claim by filling out a short form and paying a modest fee, then presenting their case to a judge directly rather than going through the lengthier procedures used in higher courts. Cases are often resolved in a single hearing that lasts only a matter of minutes.\n\nAccording to the passage, what is one way small claims court differs from higher courts?",
+        "choices": {
+          "A": "It requires both sides to hire a lawyer",
+          "B": "It only handles disputes over unpaid taxes",
+          "C": "Cases can often be resolved in a single, brief hearing",
+          "D": "It has no dollar limit on the claims it hears"
+        },
+        "correct": "C"
+      },
+      {
+        "n": 2,
+        "prompt": "During CPR, chest compressions are meant to keep a small amount of blood circulating to the brain and other organs after the heart has stopped beating effectively. Current guidelines call for compressions at a depth of about two inches on an adult and a rate of roughly 100 to 120 per minute, fast enough that rescuers are often told to compress in time with the beat of a familiar up-tempo song. Allowing the chest to fully rise between each compression is just as important as the compression itself, since it lets blood refill the heart's chambers before the next push.\n\nAccording to the passage, why is it important to let the chest fully rise between compressions?",
+        "choices": {
+          "A": "It slows the compression rate to a safer speed",
+          "B": "It allows blood to refill the heart's chambers before the next push",
+          "C": "It signals that the person has started breathing again",
+          "D": "It reduces the depth needed for later compressions"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 3,
+        "prompt": "At a materials recovery facility, recyclables collected from curbside bins travel along a conveyor belt through a series of sorting stages before being baled and sold to processors. Large machines called screens shake and separate items by size and shape, magnets pull out steel cans, and a current-based system called an eddy current separator ejects aluminum items without touching them. Workers stationed along the line also remove non-recyclable items by hand that the machines fail to catch, such as plastic bags that can jam the equipment.\n\nThe main idea of this passage is that sorting recyclables at a facility...",
+        "choices": {
+          "A": "is done entirely by hand, without any machines",
+          "B": "relies on a combination of machines and manual sorting",
+          "C": "only separates aluminum from all other materials",
+          "D": "happens before the recyclables are collected from homes"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 4,
+        "prompt": "The Interstate Highway System was authorized by federal legislation in 1956, partly out of a concern for national defense, since a network of wide, high-speed roads would make it easier to move military equipment and evacuate cities quickly if needed. The federal government paid for the large majority of construction costs, with states covering the remainder, and the system eventually grew to connect most major American cities with limited-access highways designed to keep traffic moving without stoplights or cross traffic.\n\nAccording to the passage, what was one reason the Interstate Highway System was authorized in 1956?",
+        "choices": {
+          "A": "To eliminate the need for state-funded roads",
+          "B": "Concern for national defense and moving military equipment quickly",
+          "C": "To connect only rural towns to each other",
+          "D": "To replace the existing railroad network"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 5,
+        "prompt": "A barometer measures atmospheric pressure, and changes in that pressure are one of the most reliable short-term clues to coming weather. A rising barometer generally signals that clear, stable weather is on the way, because high pressure tends to push clouds and storms away from an area. A falling barometer, on the other hand, often means a storm system is approaching, since low pressure allows moist air to rise and form clouds and precipitation. Forecasters watch the rate of change as closely as the reading itself, since a rapid drop usually points to more severe weather than a slow one.\n\nIt can be inferred from the passage that a rapidly falling barometer reading suggests...",
+        "choices": {
+          "A": "clear and stable weather is approaching",
+          "B": "more severe weather than a slow drop would indicate",
+          "C": "the barometer itself is broken",
+          "D": "atmospheric pressure has stopped changing"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 6,
+        "prompt": "A cover letter accompanies a resume to give a job applicant space to explain, in their own words, why they are a strong fit for a specific position rather than simply listing past jobs and skills. While a resume presents facts in a structured format, a cover letter allows an applicant to connect their experience directly to the employer's needs and explain any gaps or career changes that a resume alone might leave unclear. Hiring managers often use it to judge an applicant's communication skills as much as their qualifications.\n\nThe main idea of this passage is that a cover letter...",
+        "choices": {
+          "A": "simply repeats the information already on the resume",
+          "B": "lets an applicant explain their fit for a job in their own words",
+          "C": "replaces the need for a resume entirely",
+          "D": "is only read after an applicant has already been hired"
+        },
+        "correct": "B"
+      },
+      {
+        "n": 7,
+        "prompt": "In most states, a person must register to vote before an upcoming election, often by a deadline that falls several weeks before election day, though some states allow same-day registration at the polls. Basic requirements typically include being a citizen of the United States, being at least eighteen years old by election day, and being a resident of the state and county where the person is registering. Once registered, a voter generally stays on the rolls unless they move, fail to vote over a period of years, or are otherwise removed under state law.\n\nAccording to the passage, what is one requirement to register to vote in most states?",
+        "choices": {
+          "A": "Being a resident of the state and county of registration",
+          "B": "Having voted in the previous election",
+          "C": "Owning property within the county",
+          "D": "Being at least twenty-one years old"
+        },
+        "correct": "A"
+      },
+      {
+        "n": 8,
+        "prompt": "Insulation slows the transfer of heat through a home's walls, ceiling, and floor, keeping warm air inside during winter and outside during summer. Materials used as insulation, such as fiberglass batts or blown-in cellulose, work by trapping tiny pockets of air, which conducts heat poorly compared to solid building materials like wood or drywall. A poorly insulated attic can allow a large share of a home's heating energy to escape upward, since warm air naturally rises, which is why many energy audits focus on attic insulation first when looking for ways to cut heating costs.\n\nIt can be inferred from the passage that energy audits often focus on attic insulation first because...",
+        "choices": {
+          "A": "attics are the cheapest part of a home to insulate",
+          "B": "warm air rising makes a poorly insulated attic a major source of heat loss",
+          "C": "attics do not require any insulation at all",
+          "D": "walls and floors lose more heat than attics do"
+        },
+        "correct": "B"
+      }
+    ]
+  ]
+}
