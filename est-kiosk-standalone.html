@@ -107,7 +107,7 @@ label.field-label {
   font-weight: 600;
   margin: 18px 0 6px;
 }
-input[type=text], input[type=tel], select {
+input[type=text], input[type=tel], select, textarea {
   width: 100%;
   font-size: 1.1rem;
   padding: 10px 12px;
@@ -117,7 +117,8 @@ input[type=text], input[type=tel], select {
   background: #fff;
   color: var(--ink);
 }
-input[type=text]:focus, input[type=tel]:focus, select:focus {
+textarea { resize: vertical; }
+input[type=text]:focus, input[type=tel]:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(30, 77, 140, 0.15);
@@ -366,6 +367,24 @@ input.input-error, select.input-error {
   height: auto;
 }
 
+.note-form {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #ccc;
+  text-align: left;
+}
+.note-save-row {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.note-status {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .byline {
   text-align: center;
   color: var(--muted);
@@ -473,13 +492,6 @@ input.input-error, select.input-error {
   margin-top: 2px;
 }
 
-.save-status {
-  text-align: center;
-  margin-top: 10px;
-  font-size: 0.95rem;
-  color: var(--muted);
-}
-
 .scores-table-wrap {
   overflow-x: auto;
   margin: 18px 0;
@@ -563,6 +575,18 @@ window.__EST_STANDALONE__ = {
 
   var RECRUITERS = ["Curless SSG", "Gatling SFC", "Guiler SFC", "Recendez SFC", "Schultz SFC", "Shirley SFC"];
 
+  // Presets for the optional recruiter next-action note on the final STOP
+  // screen. Adjust the wording to match actual station workflow whenever.
+  var NEXT_ACTION_OPTIONS = [
+    "Schedule retest",
+    "Refer to recruiter for enlistment counseling",
+    "Needs additional study before retesting",
+    "Meets standards — proceeding with processing",
+    "No further action needed",
+    "Other (specify below)"
+  ];
+  var NEXT_ACTION_OTHER = "Other (specify below)";
+
   var SCORES_ACCESS_LAST = "check";
   var SCORES_ACCESS_FIRST = "scores";
 
@@ -581,6 +605,41 @@ window.__EST_STANDALONE__ = {
     if (activeKeyHandler) document.removeEventListener("keydown", activeKeyHandler);
     activeKeyHandler = fn;
     if (fn) document.addEventListener("keydown", fn);
+  }
+
+  // Auto-reset to the Start screen after 30 minutes of inactivity, but only
+  // once results are already in (the final STOP screen and Results screen)
+  // -- never mid-test, since a mid-test reset would silently discard a
+  // test-taker's in-progress answers. This is a kiosk left unattended after
+  // a completed test, not a distraction-mid-question guard (the per-section
+  // timer already forces progress there).
+  var IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+  var idleTimeoutHandle = null;
+  var idleTimeoutArmed = false;
+
+  function resetIdleTimeout() {
+    if (idleTimeoutHandle) clearTimeout(idleTimeoutHandle);
+    idleTimeoutHandle = setTimeout(function () { renderStart(); }, IDLE_TIMEOUT_MS);
+  }
+
+  function armIdleTimeout() {
+    if (!idleTimeoutArmed) {
+      idleTimeoutArmed = true;
+      document.addEventListener("click", resetIdleTimeout);
+      document.addEventListener("touchstart", resetIdleTimeout);
+      document.addEventListener("keydown", resetIdleTimeout);
+    }
+    resetIdleTimeout();
+  }
+
+  function disarmIdleTimeout() {
+    if (idleTimeoutHandle) { clearTimeout(idleTimeoutHandle); idleTimeoutHandle = null; }
+    if (idleTimeoutArmed) {
+      idleTimeoutArmed = false;
+      document.removeEventListener("click", resetIdleTimeout);
+      document.removeEventListener("touchstart", resetIdleTimeout);
+      document.removeEventListener("keydown", resetIdleTimeout);
+    }
   }
 
   var state = {
@@ -691,6 +750,7 @@ window.__EST_STANDALONE__ = {
   function renderStart() {
     clear(app);
     setKeyHandler(null);
+    disarmIdleTimeout();
     var card = el("div", { class: "card" });
     card.appendChild(el("h1", {}, ["PRACTICE ASVAB"]));
     card.appendChild(el("h2", { class: "subtitle" }, ["Practice test for the Armed Services Vocational Aptitude Battery"]));
@@ -839,6 +899,7 @@ window.__EST_STANDALONE__ = {
 
   function renderQuestionScreen(sec) {
     clear(app);
+    disarmIdleTimeout();
 
     var total = sec.questions.length;
     var qIdx = state.questionIndex;
@@ -1014,11 +1075,11 @@ window.__EST_STANDALONE__ = {
     var completedName = parseSectionTitle(sec.title).name;
     var msg = "You've completed " + completedName + (timedOut ? " — time expired." : ".");
     box.appendChild(el("p", { class: "stop-msg" }, [msg]));
-    box.appendChild(el("p", { class: "stop-break" }, ["Take a short break if you need one."]));
 
     var isLast = state.sectionIndex >= QUESTIONS.sections.length - 1;
 
     if (!isLast) {
+      box.appendChild(el("p", { class: "stop-break" }, ["Take a short break if you need one."]));
       box.appendChild(buildUpNextBox(QUESTIONS.sections[state.sectionIndex + 1]));
     } else {
       box.appendChild(el("div", { class: "army-logo-wrap" }, [
@@ -1039,8 +1100,13 @@ window.__EST_STANDALONE__ = {
       }
     });
     box.appendChild(el("div", { class: "btn-row" }, [nextBtn]));
+
+    if (isLast) box.appendChild(renderRecruiterNoteForm());
+
     card.appendChild(box);
     app.appendChild(card);
+
+    if (isLast) armIdleTimeout(); else disarmIdleTimeout();
   }
 
   // Shown right after "Start Test" is tapped, before the first section's
@@ -1051,6 +1117,7 @@ window.__EST_STANDALONE__ = {
   function renderPreTestHandoff() {
     clear(app);
     setKeyHandler(null);
+    disarmIdleTimeout();
     var card = el("div", { class: "card" });
     var box = el("div", { class: "stop-box" });
 
@@ -1315,6 +1382,96 @@ window.__EST_STANDALONE__ = {
     });
   }
 
+  // ---------- Recruiter next-action note (final STOP screen only) ----------
+  // Unlike the main results sync, this is an interactive, in-the-moment
+  // recruiter action -- so unlike postResultsToWebhook it reports success
+  // and failure on screen rather than failing silently into the retry
+  // queue, and it guards against a hung request (observed empirically
+  // against this same webhook during testing) with a client-side timeout
+  // so "Saving..." can't be left on screen forever with no feedback.
+  function renderRecruiterNoteForm() {
+    var wrap = el("div", { class: "note-form" });
+    wrap.appendChild(el("label", { class: "field-label" }, ["Next Action (optional):"]));
+
+    var select = el("select", { id: "nextActionSelect" });
+    select.appendChild(el("option", { value: "" }, ["-- Select --"]));
+    NEXT_ACTION_OPTIONS.forEach(function (opt) {
+      select.appendChild(el("option", { value: opt }, [opt]));
+    });
+    wrap.appendChild(select);
+
+    var otherWrap = el("div", { style: "display:none;margin-top:12px;" });
+    otherWrap.appendChild(el("label", { class: "field-label" }, ["Plan / notes:"]));
+    var otherInput = el("textarea", { id: "nextActionText", rows: "3", placeholder: "Describe the plan..." });
+    otherWrap.appendChild(otherInput);
+    wrap.appendChild(otherWrap);
+
+    select.addEventListener("change", function () {
+      otherWrap.style.display = select.value === NEXT_ACTION_OTHER ? "block" : "none";
+    });
+
+    var statusEl = el("span", { class: "note-status" }, [""]);
+    var saveBtn = el("button", { class: "btn" }, ["Save Note"]);
+    saveBtn.addEventListener("click", function () {
+      saveRecruiterNote(select.value, otherInput.value.trim(), statusEl, saveBtn);
+    });
+    wrap.appendChild(el("div", { class: "note-save-row" }, [saveBtn, statusEl]));
+
+    return wrap;
+  }
+
+  function saveRecruiterNote(nextAction, otherText, statusEl, saveBtn) {
+    // Blank is fine -- clicking Save with nothing chosen is a no-op, not
+    // an error. Skipping the note entirely (never touching this form) is
+    // equally fine, since it's never required to reach Continue to Results.
+    if (!nextAction && !otherText) {
+      statusEl.textContent = "Nothing to save.";
+      return;
+    }
+    if (!RESULTS_WEBHOOK_URL || !state.finalPayload) {
+      statusEl.textContent = "Notes aren't available right now.";
+      return;
+    }
+
+    saveBtn.disabled = true;
+    statusEl.textContent = "Saving...";
+
+    var payload = {
+      type: "note",
+      result_timestamp: state.finalPayload.timestamp,
+      last_name: state.lastName,
+      first_name: state.firstName,
+      recruiter: state.recruiter,
+      next_action: nextAction,
+      note_text: otherText
+    };
+
+    var hasAbort = "AbortController" in window;
+    var controller = hasAbort ? new AbortController() : null;
+    var timedOut = false;
+    var timeoutId = hasAbort ? setTimeout(function () {
+      timedOut = true;
+      controller.abort();
+    }, 10000) : null;
+
+    fetch(RESULTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+      signal: hasAbort ? controller.signal : undefined
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (timeoutId) clearTimeout(timeoutId);
+      saveBtn.disabled = false;
+      statusEl.textContent = (res && res.ok) ? "Note saved." : "Could not save note (server error). Try again.";
+    }).catch(function () {
+      if (timeoutId) clearTimeout(timeoutId);
+      saveBtn.disabled = false;
+      statusEl.textContent = timedOut
+        ? "Could not save note (timed out). Try again."
+        : "Could not save note (offline?). Try again.";
+    });
+  }
+
   // ---------- Screen: Saved scores viewer ----------
   // Entered via the SCORES_ACCESS_LAST/FIRST name combo on the start screen
   // (see startBtn handler). A blank recruiter (dropdown left untouched)
@@ -1323,6 +1480,7 @@ window.__EST_STANDALONE__ = {
   function renderScoresScreen(recruiter) {
     clear(app);
     setKeyHandler(null);
+    disarmIdleTimeout();
 
     var showAll = !recruiter;
     var entries = getResultsHistory().filter(function (e) {
@@ -1403,6 +1561,7 @@ window.__EST_STANDALONE__ = {
   function renderResults() {
     clear(app);
     setKeyHandler(null);
+    armIdleTimeout();
     // Already computed and saved to history in finishSection when the last
     // section ended, so a refresh on the STOP screen in between can't lose it.
     var results = state.finalResults;
@@ -1460,14 +1619,6 @@ window.__EST_STANDALONE__ = {
     ]);
     card.appendChild(overallStat);
 
-    // Standalone (file://, no server) builds have nothing to save to --
-    // the score is already on screen, no status message needed.
-    var saveStatus = null;
-    if (!window.__EST_STANDALONE__) {
-      saveStatus = el("div", { class: "save-status" }, ["Saving results..."]);
-      card.appendChild(saveStatus);
-    }
-
     var restartBtn = el("button", { class: "btn" }, ["Start New Test"]);
     restartBtn.addEventListener("click", function () {
       renderStart();
@@ -1475,27 +1626,23 @@ window.__EST_STANDALONE__ = {
     card.appendChild(el("div", { class: "btn-row" }, [restartBtn]));
 
     app.appendChild(card);
-
-    if (saveStatus) saveResults(results, saveStatus);
-  }
-
-  function saveResults(results, statusEl) {
-    var payload = buildResultPayload(results);
-
-    fetch("api/results", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    }).then(function (r) {
-      if (r.ok) statusEl.textContent = "Results saved.";
-      else statusEl.textContent = "Results could not be saved (server error).";
-    }).catch(function () {
-      statusEl.textContent = "Results could not be saved (offline?).";
-    });
   }
 
   // ---------- Boot ----------
   loadData(renderStart);
+
+  // This is used as a home-screen app on an iPad -- an edge-swipe "back"
+  // gesture (or a stray back button) would otherwise navigate away from
+  // the SPA entirely, losing all in-progress test state. There's nothing
+  // to go "back" to within this single-page app, so every back attempt is
+  // absorbed: a history entry is pushed immediately, and popstate re-pushes
+  // one every time, so the trap never runs out and never needs a second
+  // back-press to exit (which would just leave the tab open with the old
+  // screen still rendered -- exactly what an unattended kiosk needs).
+  history.pushState(null, "", location.href);
+  window.addEventListener("popstate", function () {
+    history.pushState(null, "", location.href);
+  });
 
   // Catch up any results that failed to sync in a previous session (kiosk
   // closed/reloaded while still offline), whenever connectivity returns,

@@ -83,17 +83,52 @@ var HEADER_ROW = [
   "MK Correct", "MK Total", "MK Unanswered",
   "Phone",
   "Last Name", "First Name",
-  "Test Number"
+  "Test Number",
+  "Next Action", "Notes"
 ];
 
+// Two payload shapes hit this same endpoint: a full result (appendResultRow,
+// the default -- old cached kiosk versions never send `type` at all, so the
+// default has to stay "append a result row", not "do nothing") and a
+// recruiter's next-action note for an already-saved result
+// (updateResultNote, data.type === "note").
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
-    appendResultRow(data);
+    if (data.type === "note") {
+      updateResultNote(data);
+    } else {
+      appendResultRow(data);
+    }
     return jsonResponse({ ok: true });
   } catch (err) {
     return jsonResponse({ ok: false, error: String(err) });
   }
+}
+
+// Finds the result row by its original timestamp (effectively unique --
+// ISO-8601 with milliseconds) and writes the note into it in place, so a
+// note stays attached to its result for the Roster Dashboard and any
+// filtering, rather than living in a disconnected list. Throws (caught by
+// doPost, reported back to the kiosk as ok:false) if no matching row is
+// found, e.g. the result hasn't finished syncing yet.
+function updateResultNote(data) {
+  var sheet = getOrCreateSheet();
+  var values = sheet.getDataRange().getValues();
+  var headers = values[0];
+  var tsCol = headers.indexOf("Timestamp");
+  var nextActionCol = headers.indexOf("Next Action");
+  var notesCol = headers.indexOf("Notes");
+
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][tsCol] === data.result_timestamp) {
+      var row = i + 1; // 1-based sheet row; values[0] is the header row
+      if (nextActionCol !== -1) sheet.getRange(row, nextActionCol + 1).setValue(data.next_action || "");
+      if (notesCol !== -1) sheet.getRange(row, notesCol + 1).setValue(data.note_text || "");
+      return;
+    }
+  }
+  throw new Error("No result row found for timestamp " + data.result_timestamp);
 }
 
 function appendResultRow(data) {
