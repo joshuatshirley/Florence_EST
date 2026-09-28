@@ -731,7 +731,7 @@ window.__EST_STANDALONE__ = {
 
     card.appendChild(el("label", { class: "field-label" }, ["Recruiter: *"]));
     var recruiterSelect = el("select", { id: "recruiterSelect" });
-    recruiterSelect.appendChild(el("option", { value: "", disabled: "disabled" }, ["Select Recruiter"]));
+    recruiterSelect.appendChild(el("option", { value: "", disabled: "disabled", selected: "selected" }, ["Select Recruiter"]));
     RECRUITERS.forEach(function (r) {
       recruiterSelect.appendChild(el("option", { value: r }, [r]));
     });
