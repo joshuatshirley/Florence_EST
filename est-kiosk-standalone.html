@@ -1203,6 +1203,74 @@ window.__EST_STANDALONE__ = {
     setCookie(RESULTS_COOKIE, serialized, RESULTS_COOKIE_MAX_DAYS);
   }
 
+  // Results that failed to sync to the webhook (offline, or the server
+  // errored) are queued here and retried automatically -- on the browser's
+  // "online" event, on a periodic safety-net interval (in case "online"
+  // doesn't fire reliably on flaky/captive-portal-style connections), and
+  // once at boot in case the kiosk was closed while still offline. Survives
+  // across reloads/restarts for the same reason RESULTS_COOKIE does: a
+  // kiosk can sit disconnected for a long stretch and needs to catch up
+  // whenever it eventually reconnects, not just within the current session.
+  var PENDING_SYNC_COOKIE = "est_pending_sync";
+  var PENDING_SYNC_MAX_ENTRIES = 25;
+  var PENDING_SYNC_MAX_DAYS = 365;
+  var PENDING_SYNC_MAX_BYTES = 3800;
+  var PENDING_SYNC_RETRY_MS = 2 * 60 * 1000;
+
+  function getPendingSyncQueue() {
+    var raw = getCookie(PENDING_SYNC_COOKIE);
+    if (!raw) return [];
+    try {
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function savePendingSyncQueue(queue) {
+    while (queue.length > PENDING_SYNC_MAX_ENTRIES) queue.shift();
+    var serialized = JSON.stringify(queue);
+    while (serialized.length > PENDING_SYNC_MAX_BYTES && queue.length > 1) {
+      queue.shift();
+      serialized = JSON.stringify(queue);
+    }
+    setCookie(PENDING_SYNC_COOKIE, serialized, PENDING_SYNC_MAX_DAYS);
+  }
+
+  function enqueuePendingSync(payload) {
+    var queue = getPendingSyncQueue();
+    queue.push(payload);
+    savePendingSyncQueue(queue);
+  }
+
+  // Best-effort background catch-up -- not tied to any on-screen status
+  // element, since the STOP screen that originally reported the failure
+  // may be long gone by the time connectivity returns. Silent on success;
+  // whatever's still unsent stays queued for the next attempt.
+  function flushPendingSyncQueue() {
+    if (!RESULTS_WEBHOOK_URL) return;
+    var queue = getPendingSyncQueue();
+    if (!queue.length) return;
+
+    var stillPending = [];
+    var remaining = queue.length;
+    queue.forEach(function (payload) {
+      fetch(RESULTS_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        if (!res || !res.ok) stillPending.push(payload);
+      }).catch(function () {
+        stillPending.push(payload);
+      }).then(function () {
+        remaining--;
+        if (remaining === 0) savePendingSyncQueue(stillPending);
+      });
+    });
+  }
+
   // Shared shape for both the cookie history entry and the server POST body.
   function buildResultPayload(results) {
     var payload = {
@@ -1241,11 +1309,15 @@ window.__EST_STANDALONE__ = {
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     }).then(function (r) { return r.json(); }).then(function (res) {
-      statusEl.textContent = (res && res.ok)
-        ? "Results synced."
-        : "Could not sync (server error) -- saved locally on this device.";
+      if (res && res.ok) {
+        statusEl.textContent = "Results synced.";
+      } else {
+        enqueuePendingSync(payload);
+        statusEl.textContent = "Could not sync (server error) -- saved locally, will retry automatically.";
+      }
     }).catch(function () {
-      statusEl.textContent = "Could not sync (offline?) -- saved locally on this device.";
+      enqueuePendingSync(payload);
+      statusEl.textContent = "Could not sync (offline?) -- saved locally, will sync automatically once back online.";
     });
   }
 
@@ -1430,6 +1502,16 @@ window.__EST_STANDALONE__ = {
 
   // ---------- Boot ----------
   loadData(renderStart);
+
+  // Catch up any results that failed to sync in a previous session (kiosk
+  // closed/reloaded while still offline), whenever connectivity returns,
+  // and periodically as a safety net in case the "online" event doesn't
+  // fire reliably on every network transition.
+  if (navigator.onLine) flushPendingSyncQueue();
+  window.addEventListener("online", flushPendingSyncQueue);
+  setInterval(function () {
+    if (navigator.onLine) flushPendingSyncQueue();
+  }, PENDING_SYNC_RETRY_MS);
 })();
 
 </script>
