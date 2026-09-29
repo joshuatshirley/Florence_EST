@@ -373,6 +373,20 @@ input.input-error, select.input-error {
   border-top: 1px solid #ccc;
   text-align: left;
 }
+.note-summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 1rem;
+  outline: none;
+}
+.note-form-body {
+  margin-top: 14px;
+}
+.note-intro {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 12px;
+}
 .note-save-row {
   margin-top: 12px;
   display: flex;
@@ -1153,8 +1167,6 @@ window.__EST_STANDALONE__ = {
     });
     box.appendChild(el("div", { class: "btn-row" }, [nextBtn]));
 
-    if (isLast) box.appendChild(renderRecruiterNoteForm());
-
     card.appendChild(box);
     app.appendChild(card);
 
@@ -1434,7 +1446,9 @@ window.__EST_STANDALONE__ = {
     });
   }
 
-  // ---------- Recruiter next-action note (final STOP screen only) ----------
+  // ---------- Recruiter next-steps note (Results screen only) ----------
+  // Lives on the Results screen -- not the STOP screen before it -- so the
+  // recruiter can see the actual score before deciding what's next.
   // Unlike the main results sync, this is an interactive, in-the-moment
   // recruiter action -- so unlike postResultsToWebhook it reports success
   // and failure on screen rather than failing silently into the retry
@@ -1442,8 +1456,14 @@ window.__EST_STANDALONE__ = {
   // against this same webhook during testing) with a client-side timeout
   // so "Saving..." can't be left on screen forever with no feedback.
   function renderRecruiterNoteForm() {
-    var wrap = el("div", { class: "note-form" });
-    wrap.appendChild(el("label", { class: "field-label" }, ["Next Action (optional):"]));
+    var details = el("details", { class: "note-form" });
+    details.appendChild(el("summary", { class: "note-summary" }, ["Review next steps"]));
+
+    var wrap = el("div", { class: "note-form-body" });
+    wrap.appendChild(el("p", { class: "note-intro" }, [
+      "Now that you can see the score, note what it'll take to get to the next benchmark."
+    ]));
+    wrap.appendChild(el("label", { class: "field-label" }, ["Next Steps (optional):"]));
 
     var select = el("select", { id: "nextActionSelect" });
     select.appendChild(el("option", { value: "" }, ["-- Select --"]));
@@ -1454,7 +1474,7 @@ window.__EST_STANDALONE__ = {
 
     var otherWrap = el("div", { style: "display:none;margin-top:12px;" });
     otherWrap.appendChild(el("label", { class: "field-label" }, ["Plan / notes:"]));
-    var otherInput = el("textarea", { id: "nextActionText", rows: "3", placeholder: "Describe the plan..." });
+    var otherInput = el("textarea", { id: "nextActionText", rows: "3", placeholder: "Describe what it'll take to get there..." });
     otherWrap.appendChild(otherInput);
     wrap.appendChild(otherWrap);
 
@@ -1469,7 +1489,9 @@ window.__EST_STANDALONE__ = {
     });
     wrap.appendChild(el("div", { class: "note-save-row" }, [saveBtn, statusEl]));
 
-    return wrap;
+    details.appendChild(wrap);
+
+    return details;
   }
 
   // Shown on the Results screen so the test-taker can scan/tap through to a
@@ -1696,6 +1718,7 @@ window.__EST_STANDALONE__ = {
     card.appendChild(overallStat);
 
     card.appendChild(renderM2SCard());
+    card.appendChild(renderRecruiterNoteForm());
 
     var restartBtn = el("button", { class: "btn" }, ["Start New Test"]);
     restartBtn.addEventListener("click", function () {
