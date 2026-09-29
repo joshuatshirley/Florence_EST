@@ -4,7 +4,7 @@
 // serving whatever this cache holds until the name changes, so a stale
 // CACHE_NAME means an iPad that's already offline-installed never sees the
 // update even after a new push to main.
-var CACHE_NAME = "florence-est-v13";
+var CACHE_NAME = "florence-est-v14";
 
 var PRECACHE_URLS = [
   "./",
@@ -14,7 +14,8 @@ var PRECACHE_URLS = [
   "./icons/icon-180.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
-  "./assets/army_logo_horiz.svg"
+  "./assets/army_logo_horiz.svg",
+  "./assets/m2s_qr.png"
 ];
 
 self.addEventListener("install", function (event) {

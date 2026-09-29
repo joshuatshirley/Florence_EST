@@ -492,6 +492,50 @@ input.input-error, select.input-error {
   margin-top: 2px;
 }
 
+.m2s-card {
+  margin: 8px 0 24px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #f7faff;
+  text-align: center;
+}
+.m2s-title {
+  font-size: 1.15rem;
+  margin-bottom: 4px;
+}
+.m2s-blurb {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+.m2s-qr {
+  width: 150px;
+  height: 150px;
+  display: block;
+  margin: 0 auto 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px;
+}
+.m2s-link-row {
+  margin-bottom: 4px;
+}
+.btn-outline {
+  display: inline-block;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-outline:hover { background: #eef3fb; }
+
 .scores-table-wrap {
   overflow-x: auto;
   margin: 18px 0;
@@ -595,6 +639,14 @@ window.__EST_STANDALONE__ = {
   // steps. Best-effort sync on top of the local cookie history, which stays
   // the durable record if this is empty or the device is offline.
   var RESULTS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxUnnKIWbxf7x1f4lFQsAueF041-JB8_M5KrPqyvMx3jBrhXf1aWiEANbKT-IUJD1sf/exec";
+
+  // March2Success's free study site does not support bulk/roster account
+  // creation (confirmed against their registration page) -- every account,
+  // including this recruiter's own, is created one at a time through their
+  // form. This referral link pre-tags the recruiter (mID param) so a
+  // student who registers through it is automatically associated with this
+  // station without having to know or type a station ID.
+  var M2S_SIGNUP_URL = "https://march2success.com/register?params=mID164667516%7CShirley";
 
   // Keyboard shortcuts on the question screen only: A-D/1-4 pick an answer,
   // Enter advances. Exactly one handler is ever attached -- each screen
@@ -1420,6 +1472,30 @@ window.__EST_STANDALONE__ = {
     return wrap;
   }
 
+  // Shown on the Results screen so the test-taker can scan/tap through to a
+  // free March2Success account (M2S has no bulk/roster enrollment -- see
+  // M2S_SIGNUP_URL comment). Opens in a new tab/window so the kiosk's own
+  // state is never left mid-flow.
+  function renderM2SCard() {
+    var wrap = el("div", { class: "m2s-card" });
+    wrap.appendChild(el("div", { class: "m2s-title" }, ["Keep practicing -- it's free"]));
+    wrap.appendChild(el("div", { class: "m2s-blurb" }, [
+      "Scan the code or tap below to create a free March2Success account."
+    ]));
+    wrap.appendChild(el("img", {
+      class: "m2s-qr",
+      src: "./assets/m2s_qr.png",
+      alt: "QR code to sign up for March2Success"
+    }));
+    wrap.appendChild(el("div", { class: "m2s-link-row" }, [
+      el("a", { class: "btn-outline", href: M2S_SIGNUP_URL, target: "_blank", rel: "noopener" }, [
+        "Open March2Success"
+      ])
+    ]));
+
+    return wrap;
+  }
+
   function saveRecruiterNote(nextAction, otherText, statusEl, saveBtn) {
     // Blank is fine -- clicking Save with nothing chosen is a no-op, not
     // an error. Skipping the note entirely (never touching this form) is
@@ -1618,6 +1694,8 @@ window.__EST_STANDALONE__ = {
       el("div", { class: "overall-stat-label" }, ["Overall"])
     ]);
     card.appendChild(overallStat);
+
+    card.appendChild(renderM2SCard());
 
     var restartBtn = el("button", { class: "btn" }, ["Start New Test"]);
     restartBtn.addEventListener("click", function () {
