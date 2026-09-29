@@ -47,7 +47,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px 64px;
+  padding: clamp(4px, 1.2vh, 24px) 16px clamp(6px, 1.8vh, 64px);
 }
 
 .card {
@@ -55,22 +55,28 @@ html, body {
   border-radius: 10px;
   max-width: 900px;
   width: 100%;
-  padding: 28px 32px;
+  padding: clamp(8px, 1.7vh, 28px) clamp(18px, 4vw, 32px);
   box-shadow: 0 6px 24px rgba(0,0,0,0.35);
 }
 
 h1 {
   text-align: center;
-  font-size: clamp(1.7rem, 6vw, 2.4rem);
+  font-size: clamp(1.3rem, min(6vw, 5.5vh), 2.4rem);
   letter-spacing: 2px;
   margin: 0 0 4px;
 }
 
+/* vh-based (not just vw) so this whole screen -- the sign-up/start
+   screen, the only place h2.subtitle is used -- scales down on a short
+   landscape iPad viewport and fits without scrolling, not just a narrow
+   one. Same reasoning for every other rule below marked vh-scaled, down
+   through the form fields and section list. */
 h2.subtitle {
   text-align: center;
   font-weight: 500;
   text-decoration: underline;
-  margin: 0 0 24px;
+  font-size: clamp(0.8rem, 2.2vh, 1.1rem);
+  margin: 0 0 clamp(4px, 1.2vh, 24px);
   color: var(--muted);
 }
 
@@ -78,39 +84,45 @@ h2.subtitle {
   background: #f2f2f2;
   border: 1px solid #ccc;
   border-radius: 6px;
-  padding: 16px 20px;
-  margin: 16px 0;
-  line-height: 1.5;
+  font-size: clamp(0.75rem, 1.6vh, 1rem);
+  padding: clamp(6px, 1.4vh, 16px) clamp(10px, 2.5vw, 20px);
+  margin: clamp(4px, 1vh, 16px) 0;
+  line-height: 1.3;
 }
 
+/* Two columns instead of one long stacked list -- half the vertical
+   space for the same four sections. */
 .section-list {
-  margin: 18px 0;
+  margin: clamp(5px, 1.2vh, 18px) 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 28px;
 }
 .section-item {
-  padding: 12px 2px;
+  padding: clamp(3px, 0.8vh, 12px) 2px;
   border-bottom: 1px solid #ddd;
 }
-.section-item:last-child {
+.section-item:nth-last-child(-n+2) {
   border-bottom: none;
 }
 .section-item-name {
-  font-size: 1.15rem;
-  margin-bottom: 3px;
+  font-size: clamp(0.85rem, 1.8vh, 1.15rem);
+  margin-bottom: 2px;
 }
 .section-item-meta {
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: clamp(0.7rem, 1.4vh, 0.9rem);
 }
 
 label.field-label {
   display: block;
   font-weight: 600;
-  margin: 18px 0 6px;
+  margin: clamp(3px, 1.1vh, 18px) 0 clamp(1px, 0.4vh, 6px);
 }
 input[type=text], input[type=tel], select, textarea {
   width: 100%;
-  font-size: 1.1rem;
-  padding: 10px 12px;
+  font-size: clamp(0.95rem, 1.8vh, 1.1rem);
+  padding: clamp(4px, 0.85vh, 10px) 12px;
   border: 1px solid #999;
   border-radius: 6px;
   font-family: inherit;
@@ -160,14 +172,17 @@ input.input-error, select.input-error {
   color: #fff;
   border: none;
   border-radius: 6px;
-  padding: 14px 28px;
+  /* 12px floor, not lower -- this is the most-tapped control in the app
+     (Next/Start/Begin), and needs to stay a safe touch target even when
+     vh-shrunk. */
+  padding: clamp(12px, 1.7vh, 14px) 28px;
   font-size: 1.1rem;
   cursor: pointer;
   transition: background 0.15s;
 }
 .btn:hover { background: var(--accent-dark); }
 .btn:disabled { background: #999; cursor: not-allowed; }
-.btn-row { text-align: center; margin-top: 28px; }
+.btn-row { text-align: center; margin-top: clamp(8px, 1.6vh, 28px); }
 
 .section-header {
   background: #f5e642;
@@ -604,6 +619,7 @@ input.input-error, select.input-error {
   .timer { font-size: 1.15rem; }
   .question .q-prompt { font-size: 1.25rem; }
   .choice { font-size: 1rem; padding: 13px 14px; }
+  .section-list { grid-template-columns: 1fr; }
 
   .nav-row .btn {
     width: 100%;
