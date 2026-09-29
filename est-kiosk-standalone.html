@@ -386,7 +386,7 @@ input.input-error, select.input-error {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 4px;
+  margin-bottom: 14px;
 }
 .note-option {
   padding: 13px 16px;
@@ -403,17 +403,6 @@ input.input-error, select.input-error {
   background: #e8f0fb;
   color: var(--accent-dark);
   font-weight: 700;
-}
-.note-save-row {
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.note-status {
-  font-size: 0.9rem;
-  color: var(--muted);
 }
 
 .byline {
@@ -656,10 +645,8 @@ window.__EST_STANDALONE__ = {
     "Refer to March2Success",
     "Schedule ASVAB",
     "Discuss opportunities with recruiter",
-    "Schedule enlistment",
-    "Other (specify below)"
+    "Schedule enlistment"
   ];
-  var NEXT_ACTION_OTHER = "Other (specify below)";
 
   var SCORES_ACCESS_LAST = "check";
   var SCORES_ACCESS_FIRST = "scores";
@@ -1464,13 +1451,10 @@ window.__EST_STANDALONE__ = {
 
   // ---------- Recruiter next-steps note (Results screen only) ----------
   // Lives on the Results screen -- not the STOP screen before it -- so the
-  // recruiter can see the actual score before deciding what's next.
-  // Unlike the main results sync, this is an interactive, in-the-moment
-  // recruiter action -- so unlike postResultsToWebhook it reports success
-  // and failure on screen rather than failing silently into the retry
-  // queue, and it guards against a hung request (observed empirically
-  // against this same webhook during testing) with a client-side timeout
-  // so "Saving..." can't be left on screen forever with no feedback.
+  // recruiter can see the actual score before deciding what's next. Saves
+  // silently in the background (blur the text box, pick an option, or move
+  // on to a new test) rather than needing an explicit Save button -- same
+  // best-effort, no-feedback treatment as the main results sync.
   function renderRecruiterNoteForm() {
     var wrap = el("div", { class: "note-form" });
     wrap.appendChild(el("div", { class: "note-form-title" }, ["Review next steps"]));
@@ -1481,10 +1465,9 @@ window.__EST_STANDALONE__ = {
     var selectedValue = "";
     var optionButtons = [];
 
-    var otherWrap = el("div", { style: "display:none;margin-top:12px;" });
-    otherWrap.appendChild(el("label", { class: "field-label" }, ["Plan / notes:"]));
-    var otherInput = el("textarea", { id: "nextActionText", rows: "3", placeholder: "Describe what it'll take to get there..." });
-    otherWrap.appendChild(otherInput);
+    function saveNow() {
+      saveRecruiterNote(selectedValue, noteInput.value.trim());
+    }
 
     var optionsWrap = el("div", { class: "note-options" });
     NEXT_ACTION_OPTIONS.forEach(function (opt) {
@@ -1494,21 +1477,21 @@ window.__EST_STANDALONE__ = {
         optionButtons.forEach(function (b) { b.classList.remove("selected"); });
         selectedValue = wasSelected ? "" : opt;
         if (!wasSelected) optBtn.classList.add("selected");
-        otherWrap.style.display = selectedValue === NEXT_ACTION_OTHER ? "block" : "none";
+        saveNow();
       });
       optionButtons.push(optBtn);
       optionsWrap.appendChild(optBtn);
     });
     wrap.appendChild(optionsWrap);
-    wrap.appendChild(otherWrap);
 
-    var statusEl = el("span", { class: "note-status" }, [""]);
-    var saveBtn = el("button", { class: "btn" }, ["Save Note"]);
-    saveBtn.addEventListener("click", function () {
-      saveRecruiterNote(selectedValue, otherInput.value.trim(), statusEl, saveBtn);
+    var noteInput = el("textarea", {
+      rows: "3",
+      placeholder: "Add any additional notes..."
     });
-    wrap.appendChild(el("div", { class: "note-save-row" }, [saveBtn, statusEl]));
+    noteInput.addEventListener("blur", saveNow);
+    wrap.appendChild(noteInput);
 
+    wrap.saveNow = saveNow;
     return wrap;
   }
 
@@ -1536,21 +1519,14 @@ window.__EST_STANDALONE__ = {
     return wrap;
   }
 
-  function saveRecruiterNote(nextAction, otherText, statusEl, saveBtn) {
-    // Blank is fine -- clicking Save with nothing chosen is a no-op, not
-    // an error. Skipping the note entirely (never touching this form) is
-    // equally fine, since it's never required to reach Continue to Results.
-    if (!nextAction && !otherText) {
-      statusEl.textContent = "Nothing to save.";
-      return;
-    }
-    if (!RESULTS_WEBHOOK_URL || !state.finalPayload) {
-      statusEl.textContent = "Notes aren't available right now.";
-      return;
-    }
-
-    saveBtn.disabled = true;
-    statusEl.textContent = "Saving...";
+  // Fire-and-forget, like postResultsToWebhook -- blank is fine (nothing
+  // chosen, nothing typed is a no-op, not an error), and there's no on-screen
+  // feedback to manage, so a failed/timed-out save just goes nowhere rather
+  // than getting retried. The abort timeout here is only to keep a stray
+  // request from lingering, not to drive any UI.
+  function saveRecruiterNote(nextAction, noteText) {
+    if (!nextAction && !noteText) return;
+    if (!RESULTS_WEBHOOK_URL || !state.finalPayload) return;
 
     var payload = {
       type: "note",
@@ -1559,32 +1535,20 @@ window.__EST_STANDALONE__ = {
       first_name: state.firstName,
       recruiter: state.recruiter,
       next_action: nextAction,
-      note_text: otherText
+      note_text: noteText
     };
 
     var hasAbort = "AbortController" in window;
     var controller = hasAbort ? new AbortController() : null;
-    var timedOut = false;
-    var timeoutId = hasAbort ? setTimeout(function () {
-      timedOut = true;
-      controller.abort();
-    }, 10000) : null;
+    var timeoutId = hasAbort ? setTimeout(function () { controller.abort(); }, 10000) : null;
 
     fetch(RESULTS_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload),
       signal: hasAbort ? controller.signal : undefined
-    }).then(function (r) { return r.json(); }).then(function (res) {
+    }).catch(function () {}).then(function () {
       if (timeoutId) clearTimeout(timeoutId);
-      saveBtn.disabled = false;
-      statusEl.textContent = (res && res.ok) ? "Note saved." : "Could not save note (server error). Try again.";
-    }).catch(function () {
-      if (timeoutId) clearTimeout(timeoutId);
-      saveBtn.disabled = false;
-      statusEl.textContent = timedOut
-        ? "Could not save note (timed out). Try again."
-        : "Could not save note (offline?). Try again.";
     });
   }
 
@@ -1736,10 +1700,12 @@ window.__EST_STANDALONE__ = {
     card.appendChild(overallStat);
 
     card.appendChild(renderM2SCard());
-    card.appendChild(renderRecruiterNoteForm());
+    var noteForm = renderRecruiterNoteForm();
+    card.appendChild(noteForm);
 
     var restartBtn = el("button", { class: "btn" }, ["Start New Test"]);
     restartBtn.addEventListener("click", function () {
+      noteForm.saveNow();
       renderStart();
     });
     card.appendChild(el("div", { class: "btn-row" }, [restartBtn]));
