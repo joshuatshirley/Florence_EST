@@ -1,24 +1,1821 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=./est-kiosk-standalone.html">
-  <title>Florence EST — Launch</title>
-  <link rel="manifest" href="./manifest.json">
-  <meta name="theme-color" content="#0b1b2b">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Florence EST">
-  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Practice ASVAB (EST)</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0b1b2b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Florence EST">
+<link rel="apple-touch-icon" href="./icons/icon-180.png">
+<script>
+/* ============================================================
+   STATION CONFIG -- edit this block to hand the kiosk off to a
+   different recruiting station. Nothing else in this file should
+   need to change.
+
+   A few things live OUTSIDE this file and can't be pulled into one
+   config object without a build step -- update these by hand too:
+     - The <title> and <meta name="apple-mobile-web-app-title"> tags
+       just above this script, AND the same two tags in index.html
+       (the redirect page GitHub Pages serves first). iOS reads the
+       meta tag directly for the home-screen icon label, before any
+       JS runs, so it can't pull from config.
+     - manifest.json's "name" and "short_name".
+     - assets/m2s_qr.png -- a static image baked from m2sSignupUrl
+       below. Changing the URL does not regenerate the picture;
+       re-encode the new URL with any QR generator and overwrite
+       that file, or the printed code will point students to the
+       wrong station's referral link.
+     - apps-script/results-webhook.gs and apps-script/roster-dashboard.gs
+       each have their own SHEET_ID/SHEET_URL/NOTIFY_EMAIL at the top.
+       Every station needs its own Sheet and its own Apps Script
+       deployment of both files -- a deployment's /exec URL is tied
+       to one Google account and can't be shared across stations.
+   ============================================================ */
+window.EST_CONFIG = {
+  // Shown in the Recruiter dropdown. This deployment is shared across
+  // multiple stations (each station's own commander picks their station
+  // name here instead of an individual recruiter), so usage can be told
+  // apart by station in the results Sheet/dashboard without needing a
+  // separate backend per station. formatRecruiterDisplay() below expects
+  // single-recruiter entries as "Lastname RANK" (so results read "RANK
+  // Lastname") but passes plain single-word values like these through
+  // unchanged, so station names display exactly as typed here.
+  recruiters: ["Florence", "Sumter", "Georgetown", "Myrtle Beach"],
+
+  // This station's Google Apps Script web app (/exec URL) that appends
+  // each result to its Sheet -- see apps-script/results-webhook.gs for
+  // the backend and setup steps. Leave "" to disable server sync
+  // entirely and keep results only in the on-device history.
+  resultsWebhookUrl: "https://script.google.com/macros/s/AKfycbxUnnKIWbxf7x1f4lFQsAueF041-JB8_M5KrPqyvMx3jBrhXf1aWiEANbKT-IUJD1sf/exec",
+
+  // This station's March2Success recruiter referral link (get your own
+  // from march2success.com's recruiter registration -- the mID in the
+  // URL is what ties a student signup back to a specific recruiter).
+  // See the assets/m2s_qr.png note above the object.
+  m2sSignupUrl: "https://march2success.com/register?params=mID164667516%7CShirley",
+
+  // Presets for the optional recruiter next-steps note on the Results
+  // screen. Adjust the wording to match actual station workflow.
+  nextStepsOptions: [
+    "Refer to March2Success",
+    "Schedule ASVAB",
+    "Discuss opportunities with recruiter",
+    "Schedule enlistment"
+  ],
+
+  // Typing this exact last/first name combo on the Start screen opens
+  // the private on-device Saved Scores viewer instead of starting a
+  // test. Change these if a different (or harder to guess) phrase is
+  // wanted.
+  scoresAccessLastName: "check",
+  scoresAccessFirstName: "scores",
+
+  // Minutes of inactivity before the kiosk resets to the Start screen.
+  // Only takes effect once a result has already been sent (the final
+  // STOP screen and Results screen) -- never mid-test.
+  idleTimeoutMinutes: 30
+};
+</script>
+<style>
+:root {
+  --bg: #0b1b2b;
+  --panel: #ffffff;
+  --ink: #1a1a1a;
+  --muted: #555;
+  --accent: #1e4d8c;
+  --accent-dark: #123059;
+  --ok: #1a7d3c;
+  --warn: #b8860b;
+  --stop-bg: #d9d9d9;
+  --answered-bg: #d7f0d7;
+  --font-ui: "Segoe UI", Arial, Helvetica, sans-serif;
+  --font-serif: Georgia, "Times New Roman", Cambria, serif;
+  --font-mono: "SF Mono", "Consolas", "Menlo", monospace;
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-critical: #d03b3b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(4px, 1.2vh, 24px) 16px clamp(6px, 1.8vh, 64px);
+}
+
+.card {
+  background: var(--panel);
+  border-radius: 10px;
+  max-width: 900px;
+  width: 100%;
+  padding: clamp(8px, 1.7vh, 28px) clamp(18px, 4vw, 32px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.35);
+}
+
+h1 {
+  text-align: center;
+  font-size: clamp(1.3rem, min(6vw, 5.5vh), 2.4rem);
+  letter-spacing: 2px;
+  margin: 0 0 4px;
+}
+
+/* vh-based (not just vw) so this whole screen -- the sign-up/start
+   screen, the only place h2.subtitle is used -- scales down on a short
+   landscape iPad viewport and fits without scrolling, not just a narrow
+   one. Same reasoning for every other rule below marked vh-scaled, down
+   through the form fields and section list. */
+h2.subtitle {
+  text-align: center;
+  font-weight: 500;
+  text-decoration: underline;
+  font-size: clamp(0.8rem, 2.2vh, 1.1rem);
+  margin: 0 0 clamp(4px, 1.2vh, 24px);
+  color: var(--muted);
+}
+
+.instructions-box {
+  background: #f2f2f2;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: clamp(0.75rem, 1.6vh, 1rem);
+  padding: clamp(6px, 1.4vh, 16px) clamp(10px, 2.5vw, 20px);
+  margin: clamp(4px, 1vh, 16px) 0;
+  line-height: 1.3;
+}
+
+/* Two columns instead of one long stacked list -- half the vertical
+   space for the same four sections. */
+.section-list {
+  margin: clamp(5px, 1.2vh, 18px) 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 28px;
+}
+.section-item {
+  padding: clamp(3px, 0.8vh, 12px) 2px;
+  border-bottom: 1px solid #ddd;
+}
+.section-item:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+.section-item-name {
+  font-size: clamp(0.85rem, 1.8vh, 1.15rem);
+  margin-bottom: 2px;
+}
+.section-item-meta {
+  color: var(--muted);
+  font-size: clamp(0.7rem, 1.4vh, 0.9rem);
+}
+
+label.field-label {
+  display: block;
+  font-weight: 600;
+  margin: clamp(3px, 1.1vh, 18px) 0 clamp(1px, 0.4vh, 6px);
+}
+input[type=text], input[type=tel], select, textarea {
+  width: 100%;
+  font-size: clamp(0.95rem, 1.8vh, 1.1rem);
+  padding: clamp(4px, 0.85vh, 10px) 12px;
+  border: 1px solid #999;
+  border-radius: 6px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+textarea { resize: vertical; }
+input[type=text]:focus, input[type=tel]:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(30, 77, 140, 0.15);
+}
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  cursor: pointer;
+}
+select::-ms-expand { display: none; }
+
+input.input-error, select.input-error {
+  border-color: #b00020;
+}
+.field-error {
+  display: none;
+  color: #b00020;
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+.field-error.visible {
+  display: block;
+}
+.question-error {
+  text-align: center;
+  font-size: 0.95rem;
+  margin-top: 16px;
+}
+
+.btn {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  /* 12px floor, not lower -- this is the most-tapped control in the app
+     (Next/Start/Begin), and needs to stay a safe touch target even when
+     vh-shrunk. */
+  padding: clamp(12px, 1.7vh, 14px) 28px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn:hover { background: var(--accent-dark); }
+.btn:disabled { background: #999; cursor: not-allowed; }
+.btn-row { text-align: center; margin-top: clamp(8px, 1.6vh, 28px); }
+
+.section-header {
+  background: #f5e642;
+  border: 1px solid #c9bf30;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+/* Sticky topbar holds progress + timer together so neither one floats over
+   question text -- this is the piece that has to behave on small screens. */
+.test-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 14px;
+}
+.topbar-inner {
+  background: var(--panel);
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.test-card { padding-top: 20px; }
+
+.timer {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.4rem;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+.timer.low { color: #b00020; }
+
+.progress-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.progress-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.progress-remaining {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.progress-bar-outer {
+  height: 6px;
+  background: #e6e6e6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.question-single {
+  padding: 8px 0 4px;
+}
+.question .q-prompt {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  line-height: 1.45;
+  margin-bottom: 20px;
+  white-space: pre-line;
+}
+.question .q-num {
+  font-weight: 700;
+  margin-right: 8px;
+  color: var(--accent);
+}
+.choice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+.choice:hover { background: #f0f4fa; border-color: var(--accent); }
+.choice input { transform: scale(1.3); }
+.choice.selected { background: var(--answered-bg); border-color: var(--ok); }
+.choice-letter { font-weight: 700; width: 20px; }
+
+.nav-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 30px;
+}
+.stop-box {
+  background: var(--stop-bg);
+  border: 1px solid #999;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+}
+.stop-sign-outer {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 22px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+.stop-sign {
+  width: 120px;
+  height: 120px;
+  background: #c8102e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+.stop-msg {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 4px 0;
+}
+.stop-break {
+  color: var(--muted);
+  margin: 4px 0 20px;
+}
+.stop-upnext {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 0 auto 4px;
+  max-width: 360px;
+  text-align: center;
+}
+.stop-upnext-label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.stop-upnext-name {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
+}
+.stop-upnext-meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+/* The logo's wordmark is white -- it needs a dark ground to read against,
+   which the light stop-box panel isn't, so it gets its own dark tile. */
+.army-logo-wrap {
+  background: var(--bg);
+  border-radius: 8px;
+  max-width: 280px;
+  margin: 4px auto 18px;
+  padding: 16px 20px;
+}
+.army-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.note-form {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #ccc;
+  text-align: left;
+}
+.note-form-title {
+  font-size: 1.15rem;
+  margin-bottom: 4px;
+}
+.note-intro {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 14px;
+}
+.note-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.note-option {
+  padding: 13px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: left;
+}
+.note-option:hover { border-color: var(--accent); background: #f0f4fa; }
+.note-option.selected {
+  border-color: var(--accent);
+  background: #e8f0fb;
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+.byline {
+  text-align: center;
+  color: var(--muted);
+  margin: 2px 0;
+}
+.byline:last-of-type {
+  margin-bottom: 20px;
+}
+
+.hero {
+  text-align: center;
+  padding: 18px 0 24px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+.hero-value {
+  font-family: var(--font-ui);
+  font-size: clamp(2.8rem, 12vw, 4rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+}
+.hero-label {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.hero-sub {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.meter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.meter-name { font-size: 1.05rem; }
+.meter-frac {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.meter-track {
+  height: 12px;
+  border-radius: 6px;
+  background: #eee;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+.meter-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.status-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.status-fill-good { background: var(--status-good); }
+.status-fill-warning { background: var(--status-warning); }
+.status-fill-critical { background: var(--status-critical); }
+.meter-unanswered::before {
+  content: "·";
+  margin-right: 8px;
+}
+
+.overall-stat {
+  text-align: center;
+  margin: 8px 0 20px;
+}
+.overall-stat-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.overall-stat-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.m2s-card {
+  margin: 8px 0 24px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #f7faff;
+  text-align: center;
+}
+.m2s-title {
+  font-size: 1.15rem;
+  margin-bottom: 4px;
+}
+.m2s-blurb {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 16px;
+}
+.m2s-qr {
+  width: 150px;
+  height: 150px;
+  display: block;
+  margin: 0 auto 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  padding: 6px;
+}
+.m2s-link-row {
+  margin-bottom: 4px;
+}
+.btn-outline {
+  display: inline-block;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.btn-outline:hover { background: #eef3fb; }
+
+.scores-table-wrap {
+  overflow-x: auto;
+  margin: 18px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+.scores-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.scores-table th, .scores-table td {
+  padding: 10px 14px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid #eee;
+}
+.scores-table thead th {
+  background: #f2f2f2;
+  font-weight: 700;
+}
+.scores-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.scores-table tbody tr:hover {
+  background: #f7faff;
+}
+.scores-table-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ---------- Desktop (>=700px): roomier card ---------- */
+@media (min-width: 700px) {
+  .nav-row .btn {
+    width: auto;
+  }
+}
+
+/* ---------- Mobile (<700px): full-width thumb-friendly controls ---------- */
+@media (max-width: 699px) {
+  #app { padding: 12px 10px 48px; }
+  .card { padding: 20px 18px; }
+  .topbar-inner { padding: 10px 14px; gap: 12px; }
+  .timer { font-size: 1.15rem; }
+  .question .q-prompt { font-size: 1.25rem; }
+  .choice { font-size: 1rem; padding: 13px 14px; }
+  .section-list { grid-template-columns: 1fr; }
+
+  .nav-row .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .overall-stat-value { font-size: 1.6rem; }
+
+  .scores-table th, .scores-table td {
+    padding: 8px 10px;
+    font-size: 0.85rem;
+  }
+}
+
+</style>
 </head>
 <body>
-  <p>If you are not redirected automatically, <a href="./est-kiosk-standalone.html">open the test</a>.</p>
-  <p>Tip: enable GitHub Pages for this repository and the test will be available at the Pages URL (see README).</p>
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js").catch(function () {});
+<div id="app"></div>
+<!-- Question/scoring data lives in question-data.js, not inline here --
+     it's ~85KB of generated content nobody hand-edits, so splitting it
+     out keeps this file to markup, styles, and app logic. See that
+     file's own header for how it's regenerated. -->
+<script src="./question-data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var app = document.getElementById("app");
+  var TEST_VARIANTS = null; // array of {sections: [...]} -- one per test number
+  var QUESTIONS = null;     // the currently-selected variant; reassigned when Start Test is clicked
+  var SCORING = null;       // shared across all variants -- same norm tables regardless of content
+
+  // Per-station values live in window.EST_CONFIG, set in a <script> near
+  // the top of <head> -- see the comment there for what to edit when
+  // handing this kiosk off to a different station.
+  var CONFIG = window.EST_CONFIG;
+
+  var RECRUITERS = CONFIG.recruiters;
+
+  // Presets for the optional recruiter next-steps note on the Results
+  // screen.
+  var NEXT_ACTION_OPTIONS = CONFIG.nextStepsOptions;
+
+  var SCORES_ACCESS_LAST = CONFIG.scoresAccessLastName;
+  var SCORES_ACCESS_FIRST = CONFIG.scoresAccessFirstName;
+
+  // Best-effort sync on top of the local cookie history, which stays the
+  // durable record if this is empty or the device is offline.
+  var RESULTS_WEBHOOK_URL = CONFIG.resultsWebhookUrl;
+
+  var M2S_SIGNUP_URL = CONFIG.m2sSignupUrl;
+
+  // Keyboard shortcuts on the question screen only: A-D/1-4 pick an answer,
+  // Enter advances. Exactly one handler is ever attached -- each screen
+  // render swaps it out (or clears it) so key presses never leak to a
+  // screen they weren't meant for.
+  var activeKeyHandler = null;
+  function setKeyHandler(fn) {
+    if (activeKeyHandler) document.removeEventListener("keydown", activeKeyHandler);
+    activeKeyHandler = fn;
+    if (fn) document.addEventListener("keydown", fn);
+  }
+
+  // Auto-reset to the Start screen after CONFIG.idleTimeoutMinutes of
+  // inactivity, but only once results are already in (the final STOP
+  // screen and Results screen) -- never mid-test, since a mid-test reset
+  // would silently discard a test-taker's in-progress answers. This is a
+  // kiosk left unattended after a completed test, not a distraction-mid-
+  // question guard (the per-section timer already forces progress there).
+  var IDLE_TIMEOUT_MS = CONFIG.idleTimeoutMinutes * 60 * 1000;
+  var idleTimeoutHandle = null;
+  var idleTimeoutArmed = false;
+
+  function resetIdleTimeout() {
+    if (idleTimeoutHandle) clearTimeout(idleTimeoutHandle);
+    idleTimeoutHandle = setTimeout(function () { renderStart(); }, IDLE_TIMEOUT_MS);
+  }
+
+  function armIdleTimeout() {
+    if (!idleTimeoutArmed) {
+      idleTimeoutArmed = true;
+      document.addEventListener("click", resetIdleTimeout);
+      document.addEventListener("touchstart", resetIdleTimeout);
+      document.addEventListener("keydown", resetIdleTimeout);
     }
-  </script>
+    resetIdleTimeout();
+  }
+
+  function disarmIdleTimeout() {
+    if (idleTimeoutHandle) { clearTimeout(idleTimeoutHandle); idleTimeoutHandle = null; }
+    if (idleTimeoutArmed) {
+      idleTimeoutArmed = false;
+      document.removeEventListener("click", resetIdleTimeout);
+      document.removeEventListener("touchstart", resetIdleTimeout);
+      document.removeEventListener("keydown", resetIdleTimeout);
+    }
+  }
+
+  var state = {
+    lastName: "",
+    firstName: "",
+    phone: "",
+    recruiter: "",
+    testNumber: 1,
+    sectionIndex: 0,  // index into QUESTIONS.sections
+    questionIndex: 0, // index into the current section's questions
+    answers: {},      // answers[sectionCode][n] = "A"/"B"/"C"/"D"
+    timerHandle: null,
+    secondsLeft: 0,
+    finalResults: null, // set once the last section ends; see renderStop/renderResults
+    finalPayload: null  // buildResultPayload(finalResults), sent to the webhook and reused by renderResults
+  };
+
+  function el(tag, attrs, children) {
+    var e = document.createElement(tag);
+    attrs = attrs || {};
+    Object.keys(attrs).forEach(function (k) {
+      if (k === "class") e.className = attrs[k];
+      else if (k === "html") e.innerHTML = attrs[k];
+      else if (k.indexOf("on") === 0) e.addEventListener(k.slice(2), attrs[k]);
+      else e.setAttribute(k, attrs[k]);
+    });
+    (children || []).forEach(function (c) {
+      if (typeof c === "string") e.appendChild(document.createTextNode(c));
+      else if (c) e.appendChild(c);
+    });
+    return e;
+  }
+
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+  function fmtTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  // "PART I - (WK) WORD KNOWLEDGE" -> { part: "PART I", name: "Word Knowledge" }
+  function parseSectionTitle(title) {
+    var m = title.match(/^(PART [IVX]+) - \([A-Z]+\)\s*(.+)$/);
+    if (!m) return { part: title, name: title };
+    var name = m[2].replace(/\S+/g, function (w) {
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    });
+    return { part: m[1], name: name };
+  }
+
+  // "Word Knowledge" -> fragment with the leading letter of each word bolded,
+  // so the section's acronym (e.g. WK) reads visually without spelling it out.
+  function boldedName(name) {
+    var frag = document.createDocumentFragment();
+    name.split(" ").forEach(function (word, i) {
+      if (i > 0) frag.appendChild(document.createTextNode(" "));
+      frag.appendChild(el("strong", {}, [word.charAt(0)]));
+      frag.appendChild(document.createTextNode(word.slice(1)));
+    });
+    return frag;
+  }
+
+  // RECRUITERS is stored "Lastname RANK" (alphabetizes cleanly by surname in
+  // the dropdown); results display it rank-first, e.g. "Shirley SFC" -> "SFC
+  // Shirley". Only reformats when the last word is written in ALL CAPS --
+  // matching every rank abbreviation used in this app (SSG, SFC, 1SG, ...)
+  // -- so a multi-word value that ISN'T "Lastname RANK", like a station
+  // name ("Myrtle Beach") on a deployment shared across stations, passes
+  // through unchanged instead of getting flipped into "Beach Myrtle".
+  function formatRecruiterDisplay(value) {
+    if (!value) return value;
+    var parts = value.trim().split(/\s+/);
+    if (parts.length < 2) return value;
+    var rank = parts[parts.length - 1];
+    if (rank !== rank.toUpperCase() || !/[A-Z]/.test(rank)) return value;
+    var name = parts.slice(0, -1).join(" ");
+    return rank + " " + name;
+  }
+
+  // First+Last stored separately (state.lastName/state.firstName) so the
+  // Sheet/cookie history can sort and group by last name -- this is just
+  // the "First Last" form used for on-screen greetings.
+  function displayName() {
+    return (state.firstName + " " + state.lastName).trim();
+  }
+
+  // ---------- Data loading ----------
+  // Practice-test content and scoring tables come from question-data.js
+  // (loaded via a plain <script src>, not fetch() -- see that file's own
+  // header comment for why) and are already on window.__EST_STANDALONE__
+  // by the time this runs, since that script tag sits above this one.
+  function loadData(cb) {
+    TEST_VARIANTS = window.__EST_STANDALONE__.testVariants;
+    QUESTIONS = TEST_VARIANTS[0]; // Test 1 by default; re-picked in the startBtn handler
+    SCORING = window.__EST_STANDALONE__.scoring;
+    cb();
+  }
+
+  // ---------- Screen: Start ----------
+  function renderStart() {
+    clear(app);
+    setKeyHandler(null);
+    disarmIdleTimeout();
+    var card = el("div", { class: "card" });
+    card.appendChild(el("h1", {}, ["PRACTICE ASVAB"]));
+    card.appendChild(el("h2", { class: "subtitle" }, ["Practice test for the Armed Services Vocational Aptitude Battery"]));
+    card.appendChild(el("div", { class: "instructions-box" }, [
+      "The following test which you are about to take is a practice test for the Armed Services Vocational Aptitude " +
+      "Battery (ASVAB). This practice test is a tool designed to gauge where your current academic capabilities are " +
+      "at by using four testing categories. Each category has a set number of questions and a set amount of allotted " +
+      "time in which to complete the section."
+    ]));
+
+    var sectionList = el("div", { class: "section-list" });
+    QUESTIONS.sections.forEach(function (sec) {
+      var parsed = parseSectionTitle(sec.title);
+      sectionList.appendChild(el("div", { class: "section-item" }, [
+        el("div", { class: "section-item-name" }, [boldedName(parsed.name)]),
+        el("div", { class: "section-item-meta" }, [
+          sec.questions.length + " questions  ·  " + sec.minutes + " minutes"
+        ])
+      ]));
+    });
+    card.appendChild(sectionList);
+
+    card.appendChild(el("div", { class: "instructions-box" }, [
+      "Take all instruction from your recruiter. Scratch paper should be available for any math functions " +
+      "you need to complete for this test. Good luck!"
+    ]));
+
+    card.appendChild(el("label", { class: "field-label" }, ["Last Name: *"]));
+    var lastNameInput = el("input", { type: "text", id: "lastName", placeholder: "Last name", required: "required" });
+    card.appendChild(lastNameInput);
+    var lastNameError = el("div", { class: "field-error" }, ["Last name is required."]);
+    card.appendChild(lastNameError);
+
+    card.appendChild(el("label", { class: "field-label" }, ["First Name:"]));
+    var firstNameInput = el("input", { type: "text", id: "firstName", placeholder: "First name" });
+    card.appendChild(firstNameInput);
+
+    card.appendChild(el("label", { class: "field-label" }, ["Phone Number:"]));
+    var phoneInput = el("input", { type: "tel", id: "phone", placeholder: "Phone number" });
+    card.appendChild(phoneInput);
+
+    card.appendChild(el("label", { class: "field-label" }, ["Recruiter: *"]));
+    var recruiterSelect = el("select", { id: "recruiterSelect" });
+    recruiterSelect.appendChild(el("option", { value: "", disabled: "disabled", selected: "selected" }, ["Select Recruiter"]));
+    RECRUITERS.forEach(function (r) {
+      recruiterSelect.appendChild(el("option", { value: r }, [r]));
+    });
+    card.appendChild(recruiterSelect);
+    var recruiterError = el("div", { class: "field-error" }, ["Recruiter is required."]);
+    card.appendChild(recruiterError);
+
+    // Only shown once more than one variant exists -- a single-option
+    // dropdown would just be clutter. Always defaults to Test 1.
+    var testNumberSelect = null;
+    if (TEST_VARIANTS.length > 1) {
+      card.appendChild(el("label", { class: "field-label" }, ["Test Number:"]));
+      testNumberSelect = el("select", { id: "testNumberSelect" });
+      TEST_VARIANTS.forEach(function (v, i) {
+        testNumberSelect.appendChild(el("option", { value: String(i + 1) }, ["Test " + (i + 1)]));
+      });
+      card.appendChild(testNumberSelect);
+    }
+
+    var startBtn = el("button", { class: "btn" }, ["Start Test"]);
+    startBtn.addEventListener("click", function () {
+      var last = lastNameInput.value.trim();
+      if (!last) {
+        lastNameInput.classList.add("input-error");
+        lastNameError.classList.add("visible");
+        lastNameInput.focus();
+        return;
+      }
+      lastNameInput.classList.remove("input-error");
+      lastNameError.classList.remove("visible");
+
+      var first = firstNameInput.value.trim();
+      var recruiter = recruiterSelect.value;
+
+      // Name/recruiter fields double as the scores-viewer entry point: typing
+      // last="check", first="scores" opens the saved-results screen instead
+      // of starting a test, scoped to whichever recruiter is selected --
+      // this runs before the recruiter-required check below, so leaving the
+      // dropdown blank here still means "every recruiter" in that screen.
+      if (last.toLowerCase() === SCORES_ACCESS_LAST && first.toLowerCase() === SCORES_ACCESS_FIRST) {
+        renderScoresScreen(recruiter);
+        return;
+      }
+
+      if (!recruiter) {
+        recruiterSelect.classList.add("input-error");
+        recruiterError.classList.add("visible");
+        recruiterSelect.focus();
+        return;
+      }
+      recruiterSelect.classList.remove("input-error");
+      recruiterError.classList.remove("visible");
+
+      var testNumber = testNumberSelect ? parseInt(testNumberSelect.value, 10) : 1;
+      QUESTIONS = TEST_VARIANTS[testNumber - 1];
+
+      state.lastName = last;
+      state.firstName = first;
+      state.phone = phoneInput.value.trim();
+      state.recruiter = recruiter;
+      state.testNumber = testNumber;
+      state.sectionIndex = 0;
+      state.answers = {};
+      state.finalResults = null;
+      state.finalPayload = null;
+      QUESTIONS.sections.forEach(function (s) { state.answers[s.code] = {}; });
+      renderPreTestHandoff();
+    });
+    card.appendChild(el("div", { class: "btn-row" }, [startBtn]));
+
+    app.appendChild(card);
+  }
+
+  // ---------- Screen: Test section (one question at a time) ----------
+  function startSection(idx) {
+    state.sectionIndex = idx;
+    state.questionIndex = 0;
+    var sec = QUESTIONS.sections[idx];
+    state.secondsLeft = sec.minutes * 60;
+    renderQuestionScreen(sec);
+    if (state.timerHandle) clearInterval(state.timerHandle);
+    state.timerHandle = setInterval(function () { tick(sec); }, 1000);
+  }
+
+  function tick(sec) {
+    state.secondsLeft -= 1;
+    var timerEl = document.getElementById("timerDisplay");
+    if (timerEl) {
+      timerEl.textContent = fmtTime(Math.max(0, state.secondsLeft));
+      timerEl.classList.toggle("low", state.secondsLeft <= 30);
+    }
+    if (state.secondsLeft <= 0) {
+      clearInterval(state.timerHandle);
+      finishSection(sec, true);
+    }
+  }
+
+  function goToQuestion(sec, idx) {
+    state.questionIndex = idx;
+    renderQuestionScreen(sec);
+  }
+
+  function renderQuestionScreen(sec) {
+    clear(app);
+    disarmIdleTimeout();
+
+    var total = sec.questions.length;
+    var qIdx = state.questionIndex;
+    var q = sec.questions[qIdx];
+    var isLastQuestion = qIdx === total - 1;
+    var remaining = total - qIdx - 1;
+
+    // Sticky topbar: progress (left, grows) + timer (right, fixed width).
+    // Stacks vertically on narrow/mobile screens via CSS, sits in one row on desktop.
+    var topbar = el("div", { class: "test-topbar" });
+    var topbarInner = el("div", { class: "topbar-inner" });
+
+    var progressWrap = el("div", { class: "progress-wrap" });
+    progressWrap.appendChild(el("div", { class: "progress-count" }, [
+      "Question " + (qIdx + 1) + " of " + total,
+      el("span", { class: "progress-remaining" }, [
+        remaining > 0 ? (remaining + " left") : "last question"
+      ])
+    ]));
+    var barOuter = el("div", { class: "progress-bar-outer" });
+    barOuter.appendChild(el("div", {
+      class: "progress-bar-inner",
+      style: "width:" + Math.round(((qIdx + 1) / total) * 100) + "%"
+    }));
+    progressWrap.appendChild(barOuter);
+    topbarInner.appendChild(progressWrap);
+
+    topbarInner.appendChild(el("div", { class: "timer", id: "timerDisplay" }, [fmtTime(state.secondsLeft)]));
+    topbar.appendChild(topbarInner);
+    app.appendChild(topbar);
+
+    var parsedTitle = parseSectionTitle(sec.title);
+    var card = el("div", { class: "card test-card" });
+    card.appendChild(el("div", { class: "section-header" }, [
+      parsedTitle.part + " - ",
+      boldedName(parsedTitle.name),
+      " - You will have " + sec.minutes + " Minutes"
+    ]));
+
+    var answerError = el("div", { class: "field-error question-error" }, ["Please select an answer to continue."]);
+
+    card.appendChild(renderQuestion(sec.code, q, function () {
+      answerError.classList.remove("visible");
+    }));
+
+    // Forward-only: no way back to a previous question once answered. An
+    // answer is required to advance -- clicking Next/Finish (or pressing
+    // Enter, which triggers the same click) with nothing selected shows
+    // answerError instead of moving on.
+    var navRow = el("div", { class: "nav-row" });
+    var nextBtn = el("button", { class: "btn" }, [isLastQuestion ? "Finish Section" : "Next →"]);
+    nextBtn.addEventListener("click", function () {
+      if (!state.answers[sec.code][q.n]) {
+        answerError.classList.add("visible");
+        return;
+      }
+      if (isLastQuestion) {
+        clearInterval(state.timerHandle);
+        finishSection(sec, false);
+      } else {
+        goToQuestion(sec, qIdx + 1);
+      }
+    });
+
+    navRow.appendChild(nextBtn);
+    card.appendChild(navRow);
+    card.appendChild(answerError);
+
+    app.appendChild(card);
+
+    var numberToLetter = { "1": "A", "2": "B", "3": "C", "4": "D" };
+    setKeyHandler(function (e) {
+      // Proctor shortcut: Ctrl/Cmd+Enter selects the correct answer and
+      // advances immediately, for quickly running through a full test.
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        state.answers[sec.code][q.n] = q.correct;
+        nextBtn.click();
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      var letter = numberToLetter[e.key] || (e.key.length === 1 ? e.key.toUpperCase() : "");
+      if (letter === "A" || letter === "B" || letter === "C" || letter === "D") {
+        var radio = document.getElementById(sec.code + "-" + q.n + "-" + letter);
+        if (radio) {
+          e.preventDefault();
+          radio.click();
+        }
+        return;
+      }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        nextBtn.click();
+      }
+    });
+  }
+
+  function renderQuestion(sectionCode, q, onAnswer) {
+    var wrap = el("div", { class: "question question-single" });
+    wrap.appendChild(el("div", { class: "q-prompt" }, [
+      el("span", { class: "q-num" }, [q.n + "."]),
+      q.prompt
+    ]));
+
+    var list = el("div", { class: "choice-list" });
+    ["A", "B", "C", "D"].forEach(function (letter) {
+      if (!q.choices[letter]) return;
+      var inputId = sectionCode + "-" + q.n + "-" + letter;
+      var radio = el("input", {
+        type: "radio",
+        name: sectionCode + "-" + q.n,
+        id: inputId,
+        value: letter
+      });
+      if (state.answers[sectionCode][q.n] === letter) radio.checked = true;
+      radio.addEventListener("change", function () {
+        state.answers[sectionCode][q.n] = letter;
+        Array.prototype.forEach.call(list.querySelectorAll(".choice"), function (c) {
+          c.classList.remove("selected");
+        });
+        choiceRow.classList.add("selected");
+        if (onAnswer) onAnswer();
+      });
+      var choiceRow = el("label", {
+        class: "choice" + (state.answers[sectionCode][q.n] === letter ? " selected" : ""),
+        for: inputId
+      }, [
+        radio,
+        el("span", { class: "choice-letter" }, [letter + ")"]),
+        el("span", {}, [q.choices[letter]])
+      ]);
+      list.appendChild(choiceRow);
+    });
+    wrap.appendChild(list);
+    return wrap;
+  }
+
+  function finishSection(sec, timedOut) {
+    // Score and save to the local history the instant the last section ends
+    // -- not when someone later clicks through to the results screen -- so
+    // an accidental refresh on the STOP screen can't lose the result.
+    var isLast = state.sectionIndex >= QUESTIONS.sections.length - 1;
+    if (isLast) {
+      state.finalResults = computeResults();
+      state.finalPayload = buildResultPayload(state.finalResults);
+      saveResultToHistory(state.finalPayload);
+    }
+    renderStop(sec, timedOut);
+  }
+
+  // ---------- Screen: STOP ----------
+  function buildUpNextBox(sec) {
+    var parsed = parseSectionTitle(sec.title);
+    var upNext = el("div", { class: "stop-upnext" });
+    upNext.appendChild(el("div", { class: "stop-upnext-label" }, ["Up next"]));
+    upNext.appendChild(el("div", { class: "stop-upnext-name" }, [boldedName(parsed.name)]));
+    upNext.appendChild(el("div", { class: "stop-upnext-meta" }, [
+      sec.questions.length + " questions  ·  " + sec.minutes + " minutes"
+    ]));
+    return upNext;
+  }
+
+  function renderStop(sec, timedOut) {
+    clear(app);
+    setKeyHandler(null);
+    var card = el("div", { class: "card" });
+    var box = el("div", { class: "stop-box" });
+
+    box.appendChild(el("div", { class: "stop-sign-outer" }, [
+      el("div", { class: "stop-sign" }, ["STOP"])
+    ]));
+
+    var completedName = parseSectionTitle(sec.title).name;
+    var msg = "You've completed " + completedName + (timedOut ? " — time expired." : ".");
+    box.appendChild(el("p", { class: "stop-msg" }, [msg]));
+
+    var isLast = state.sectionIndex >= QUESTIONS.sections.length - 1;
+
+    if (!isLast) {
+      box.appendChild(el("p", { class: "stop-break" }, ["Take a short break if you need one."]));
+      box.appendChild(buildUpNextBox(QUESTIONS.sections[state.sectionIndex + 1]));
+    } else {
+      box.appendChild(el("div", { class: "army-logo-wrap" }, [
+        el("img", { src: "./assets/army_logo_horiz.svg", alt: "U.S. Army", class: "army-logo" })
+      ]));
+      box.appendChild(el("p", { class: "stop-break" }, [
+        "Please return this device to your recruiter to review your scores."
+      ]));
+      postResultsToWebhook(state.finalPayload);
+    }
+
+    var nextBtn = el("button", { class: "btn" }, [isLast ? "Continue to Results" : "Continue"]);
+    nextBtn.addEventListener("click", function () {
+      if (isLast) {
+        renderResults();
+      } else {
+        startSection(state.sectionIndex + 1);
+      }
+    });
+    box.appendChild(el("div", { class: "btn-row" }, [nextBtn]));
+
+    card.appendChild(box);
+    app.appendChild(card);
+
+    if (isLast) armIdleTimeout(); else disarmIdleTimeout();
+  }
+
+  // Shown right after "Start Test" is tapped, before the first section's
+  // timer starts -- gives the recruiter a beat to hand the device to the
+  // test-taker without eating into their section time (same handoff pattern
+  // as the between-section STOP screen, just before section 0 instead of
+  // after a completed one).
+  function renderPreTestHandoff() {
+    clear(app);
+    setKeyHandler(null);
+    disarmIdleTimeout();
+    var card = el("div", { class: "card" });
+    var box = el("div", { class: "stop-box" });
+
+    box.appendChild(el("div", { class: "stop-sign-outer" }, [
+      el("div", { class: "stop-sign" }, ["STOP"])
+    ]));
+
+    box.appendChild(el("p", { class: "stop-msg" }, ["Ready to begin, " + displayName() + "."]));
+    box.appendChild(el("p", { class: "stop-break" }, [
+      "Hand the device to the test-taker now — the timer starts as soon as you tap Begin."
+    ]));
+    box.appendChild(buildUpNextBox(QUESTIONS.sections[0]));
+
+    var beginBtn = el("button", { class: "btn" }, ["Begin"]);
+    beginBtn.addEventListener("click", function () { startSection(0); });
+    box.appendChild(el("div", { class: "btn-row" }, [beginBtn]));
+    card.appendChild(box);
+    app.appendChild(card);
+  }
+
+  // ---------- Scoring ----------
+  function vlookupApprox(lookupValue, table, keyIdx, valIdx) {
+    var result = null;
+    for (var i = 0; i < table.length; i++) {
+      var row = table[i];
+      var key = row[keyIdx];
+      var val = row[valIdx];
+      if (key === null || val === null) continue;
+      if (key <= lookupValue) result = val;
+      else break;
+    }
+    return result;
+  }
+
+  function scoreSection(sec) {
+    var total = sec.questions.length;
+    var correct = 0;
+    var unanswered = 0;
+    sec.questions.forEach(function (q) {
+      var ans = state.answers[sec.code][q.n];
+      if (!ans) unanswered++;
+      else if (ans === q.correct) correct++;
+    });
+    return { total: total, correct: correct, unanswered: unanswered, pct: (100 * correct / total) };
+  }
+
+  function computeResults() {
+    var byCode = {};
+    QUESTIONS.sections.forEach(function (sec) { byCode[sec.code] = scoreSection(sec); });
+
+    var rawTable = SCORING.raw_table; // [raw, ve_std, ar_std, mk_std]
+
+    // The raw->standard table's own range (VE to 52, AR to 30, MK to 26) is the
+    // REAL full-length ASVAB's question count -- exactly double this practice
+    // test's (VE 26, AR 15, MK 13). A perfect practice score should therefore
+    // land at the table's top row, not its midpoint, so each raw count is
+    // doubled before the lookup. See README: "AFQT scaling fix."
+    var rawVE = (byCode.WK.correct + byCode.PC.correct) * 2;
+    var veStdBase = vlookupApprox(rawVE, rawTable, 0, 1) || 0;
+    var veScore = veStdBase * 2;
+
+    var arScore = vlookupApprox(byCode.AR.correct * 2, rawTable, 0, 2) || 0;
+    var mkScore = vlookupApprox(byCode.MK.correct * 2, rawTable, 0, 3) || 0;
+
+    var stdSum = veScore + arScore + mkScore;
+    var aqft = vlookupApprox(stdSum, SCORING.pct_table, 0, 1);
+    if (aqft === null) aqft = 99;
+
+    var overallCorrect = 0, overallTotal = 0;
+    Object.keys(byCode).forEach(function (code) {
+      overallCorrect += byCode[code].correct;
+      overallTotal += byCode[code].total;
+    });
+    var overallPct = 100 * overallCorrect / overallTotal;
+
+    return {
+      byCode: byCode, rawVE: rawVE, veScore: veScore, arScore: arScore, mkScore: mkScore,
+      stdSum: stdSum, aqft: aqft, overallCorrect: overallCorrect, overallTotal: overallTotal, overallPct: overallPct
+    };
+  }
+
+  // Section % correct -> a status band. This colors the per-section meters
+  // (which read 0-100% and are honest to band by color). The AFQT hero
+  // number deliberately does NOT get this treatment -- it's a percentile
+  // projected through the (rescaled) full-length-ASVAB norm tables, not a
+  // raw 0-100% score (see README). Banding it red/green would misrepresent
+  // it as a pass/fail cutoff it was never designed to be.
+  function statusBand(pct) {
+    if (pct >= 70) return { key: "good", label: "Strong" };
+    if (pct >= 40) return { key: "warning", label: "Needs review" };
+    return { key: "critical", label: "Keep practicing" };
+  }
+
+  // ---------- Local result history (cookie) ----------
+  // Every completed test is appended to a capped JSON array kept in a cookie
+  // on this browser/device -- a durable local record of name, recruiter, and
+  // scores that survives even when there's no server to POST to (see the
+  // standalone note in loadData above). This runs for BOTH builds: it's a
+  // local backup alongside the server save for the server-backed build, and
+  // the only persistence at all for a bare file:// standalone build.
+  var RESULTS_COOKIE = "est_results_history";
+  var RESULTS_COOKIE_MAX_ENTRIES = 25;
+  var RESULTS_COOKIE_MAX_DAYS = 365;
+  var RESULTS_COOKIE_MAX_BYTES = 3800; // stay under the ~4KB per-cookie ceiling
+
+  function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + encodeURIComponent(value) + expires + "; path=/; SameSite=Lax";
+  }
+
+  function getCookie(name) {
+    var prefix = name + "=";
+    var parts = document.cookie.split(";");
+    for (var i = 0; i < parts.length; i++) {
+      var part = parts[i].replace(/^\s+/, "");
+      if (part.indexOf(prefix) === 0) return decodeURIComponent(part.slice(prefix.length));
+    }
+    return null;
+  }
+
+  function getResultsHistory() {
+    var raw = getCookie(RESULTS_COOKIE);
+    if (!raw) return [];
+    try {
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveResultToHistory(entry) {
+    var history = getResultsHistory();
+    history.push(entry);
+    while (history.length > RESULTS_COOKIE_MAX_ENTRIES) history.shift();
+    var serialized = JSON.stringify(history);
+    // Belt-and-suspenders: keep dropping the oldest entry if we're still
+    // near the cookie size ceiling (e.g. unusually long names).
+    while (serialized.length > RESULTS_COOKIE_MAX_BYTES && history.length > 1) {
+      history.shift();
+      serialized = JSON.stringify(history);
+    }
+    setCookie(RESULTS_COOKIE, serialized, RESULTS_COOKIE_MAX_DAYS);
+  }
+
+  // Results that failed to sync to the webhook (offline, or the server
+  // errored) are queued here and retried automatically -- on the browser's
+  // "online" event, on a periodic safety-net interval (in case "online"
+  // doesn't fire reliably on flaky/captive-portal-style connections), and
+  // once at boot in case the kiosk was closed while still offline. Survives
+  // across reloads/restarts for the same reason RESULTS_COOKIE does: a
+  // kiosk can sit disconnected for a long stretch and needs to catch up
+  // whenever it eventually reconnects, not just within the current session.
+  var PENDING_SYNC_COOKIE = "est_pending_sync";
+  var PENDING_SYNC_MAX_ENTRIES = 25;
+  var PENDING_SYNC_MAX_DAYS = 365;
+  var PENDING_SYNC_MAX_BYTES = 3800;
+  var PENDING_SYNC_RETRY_MS = 2 * 60 * 1000;
+
+  function getPendingSyncQueue() {
+    var raw = getCookie(PENDING_SYNC_COOKIE);
+    if (!raw) return [];
+    try {
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function savePendingSyncQueue(queue) {
+    while (queue.length > PENDING_SYNC_MAX_ENTRIES) queue.shift();
+    var serialized = JSON.stringify(queue);
+    while (serialized.length > PENDING_SYNC_MAX_BYTES && queue.length > 1) {
+      queue.shift();
+      serialized = JSON.stringify(queue);
+    }
+    setCookie(PENDING_SYNC_COOKIE, serialized, PENDING_SYNC_MAX_DAYS);
+  }
+
+  function enqueuePendingSync(payload) {
+    var queue = getPendingSyncQueue();
+    queue.push(payload);
+    savePendingSyncQueue(queue);
+  }
+
+  // Best-effort background catch-up -- not tied to any on-screen status
+  // element, since the STOP screen that originally reported the failure
+  // may be long gone by the time connectivity returns. Silent on success;
+  // whatever's still unsent stays queued for the next attempt.
+  function flushPendingSyncQueue() {
+    if (!RESULTS_WEBHOOK_URL) return;
+    var queue = getPendingSyncQueue();
+    if (!queue.length) return;
+
+    var stillPending = [];
+    var remaining = queue.length;
+    queue.forEach(function (payload) {
+      fetch(RESULTS_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      }).then(function (r) { return r.json(); }).then(function (res) {
+        if (!res || !res.ok) stillPending.push(payload);
+      }).catch(function () {
+        stillPending.push(payload);
+      }).then(function () {
+        remaining--;
+        if (remaining === 0) savePendingSyncQueue(stillPending);
+      });
+    });
+  }
+
+  // Shared shape for both the cookie history entry and the server POST body.
+  function buildResultPayload(results) {
+    var payload = {
+      last_name: state.lastName,
+      first_name: state.firstName,
+      phone: state.phone,
+      recruiter: state.recruiter,
+      test_number: state.testNumber,
+      timestamp: new Date().toISOString(),
+      sections: {},
+      ve_score: results.veScore,
+      ar_score: results.arScore,
+      mk_score: results.mkScore,
+      std_sum: results.stdSum,
+      afqt: results.aqft
+    };
+    Object.keys(results.byCode).forEach(function (code) {
+      var r = results.byCode[code];
+      payload.sections[code] = { correct: r.correct, total: r.total, unanswered: r.unanswered };
+    });
+    return payload;
+  }
+
+  // Sent as text/plain (not application/json) so the browser treats it as a
+  // "simple request" and skips the CORS preflight -- Apps Script's web app
+  // endpoint issues a redirect for POST requests that a preflight can choke
+  // on. results-webhook.gs parses the body as JSON regardless of the header.
+  //
+  // Silent, like flushPendingSyncQueue -- the local cookie history is
+  // already the durable record by the time this runs (see finishSection),
+  // and the STOP screen's job is just "hand the device back", not narrate
+  // sync plumbing. A failure here enqueues for automatic retry rather than
+  // surfacing anything on screen.
+  function postResultsToWebhook(payload) {
+    if (!RESULTS_WEBHOOK_URL) return;
+    fetch(RESULTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json(); }).then(function (res) {
+      if (!res || !res.ok) enqueuePendingSync(payload);
+    }).catch(function () {
+      enqueuePendingSync(payload);
+    });
+  }
+
+  // ---------- Recruiter next-steps note (Results screen only) ----------
+  // Lives on the Results screen -- not the STOP screen before it -- so the
+  // recruiter can see the actual score before deciding what's next. Saves
+  // silently in the background (blur the text box, pick an option, or move
+  // on to a new test) rather than needing an explicit Save button -- same
+  // best-effort, no-feedback treatment as the main results sync.
+  function renderRecruiterNoteForm() {
+    var wrap = el("div", { class: "note-form" });
+    wrap.appendChild(el("div", { class: "note-form-title" }, ["Review next steps"]));
+    wrap.appendChild(el("p", { class: "note-intro" }, [
+      "Now that you can see the score, tap what it'll take to get to the next benchmark."
+    ]));
+
+    var selectedValue = "";
+    var optionButtons = [];
+
+    function saveNow() {
+      saveRecruiterNote(selectedValue, noteInput.value.trim());
+    }
+
+    var optionsWrap = el("div", { class: "note-options" });
+    NEXT_ACTION_OPTIONS.forEach(function (opt) {
+      var optBtn = el("button", { type: "button", class: "note-option" }, [opt]);
+      optBtn.addEventListener("click", function () {
+        var wasSelected = optBtn.classList.contains("selected");
+        optionButtons.forEach(function (b) { b.classList.remove("selected"); });
+        selectedValue = wasSelected ? "" : opt;
+        if (!wasSelected) optBtn.classList.add("selected");
+        saveNow();
+      });
+      optionButtons.push(optBtn);
+      optionsWrap.appendChild(optBtn);
+    });
+    wrap.appendChild(optionsWrap);
+
+    var noteInput = el("textarea", {
+      rows: "3",
+      placeholder: "Add any additional notes..."
+    });
+    noteInput.addEventListener("blur", saveNow);
+    wrap.appendChild(noteInput);
+
+    wrap.saveNow = saveNow;
+    return wrap;
+  }
+
+  // Shown on the Results screen so the test-taker can scan/tap through to a
+  // free March2Success account (M2S has no bulk/roster enrollment, so each
+  // student still registers individually -- this just pre-tags the
+  // recruiter). Opens in a new tab/window so the kiosk's own state is
+  // never left mid-flow.
+  function renderM2SCard() {
+    var wrap = el("div", { class: "m2s-card" });
+    wrap.appendChild(el("div", { class: "m2s-title" }, ["Keep practicing -- it's free"]));
+    wrap.appendChild(el("div", { class: "m2s-blurb" }, [
+      "Scan the code or tap below to create a free March2Success account."
+    ]));
+    wrap.appendChild(el("img", {
+      class: "m2s-qr",
+      src: "./assets/m2s_qr.png",
+      alt: "QR code to sign up for March2Success"
+    }));
+    wrap.appendChild(el("div", { class: "m2s-link-row" }, [
+      el("a", { class: "btn-outline", href: M2S_SIGNUP_URL, target: "_blank", rel: "noopener" }, [
+        "Open March2Success"
+      ])
+    ]));
+
+    return wrap;
+  }
+
+  // Fire-and-forget, like postResultsToWebhook -- blank is fine (nothing
+  // chosen, nothing typed is a no-op, not an error), and there's no on-screen
+  // feedback to manage, so a failed/timed-out save just goes nowhere rather
+  // than getting retried. The abort timeout here is only to keep a stray
+  // request from lingering, not to drive any UI.
+  function saveRecruiterNote(nextAction, noteText) {
+    if (!nextAction && !noteText) return;
+    if (!RESULTS_WEBHOOK_URL || !state.finalPayload) return;
+
+    var payload = {
+      type: "note",
+      result_timestamp: state.finalPayload.timestamp,
+      last_name: state.lastName,
+      first_name: state.firstName,
+      recruiter: state.recruiter,
+      next_action: nextAction,
+      note_text: noteText
+    };
+
+    var hasAbort = "AbortController" in window;
+    var controller = hasAbort ? new AbortController() : null;
+    var timeoutId = hasAbort ? setTimeout(function () { controller.abort(); }, 10000) : null;
+
+    fetch(RESULTS_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+      signal: hasAbort ? controller.signal : undefined
+    }).catch(function () {}).then(function () {
+      if (timeoutId) clearTimeout(timeoutId);
+    });
+  }
+
+  // ---------- Screen: Saved scores viewer ----------
+  // Entered via the SCORES_ACCESS_LAST/FIRST name combo on the start screen
+  // (see startBtn handler). A blank recruiter (dropdown left untouched)
+  // shows every recruiter's results; any specific recruiter value filters
+  // to just theirs.
+  function renderScoresScreen(recruiter) {
+    clear(app);
+    setKeyHandler(null);
+    disarmIdleTimeout();
+
+    var showAll = !recruiter;
+    var entries = getResultsHistory().filter(function (e) {
+      return showAll || e.recruiter === recruiter;
+    });
+    entries.sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
+
+    var card = el("div", { class: "card" });
+    card.appendChild(el("h1", {}, ["Saved Scores"]));
+    card.appendChild(el("p", { class: "byline" }, [
+      showAll ? "All recruiters" : "Recruiter: " + formatRecruiterDisplay(recruiter)
+    ]));
+    card.appendChild(el("p", { class: "byline" }, [
+      entries.length + (entries.length === 1 ? " result" : " results") + " saved on this device"
+    ]));
+
+    if (!entries.length) {
+      card.appendChild(el("div", { class: "instructions-box" }, [
+        "No saved scores yet" + (showAll ? "." : " for this recruiter.")
+      ]));
+    } else {
+      // Section codes/order come from QUESTIONS itself (WK, AR, PC, MK) so
+      // the table always matches whatever sections the test actually has.
+      var sectionCodes = QUESTIONS.sections.map(function (sec) { return sec.code; });
+
+      var tableWrap = el("div", { class: "scores-table-wrap" });
+      var table = el("table", { class: "scores-table" });
+      var showTestCol = TEST_VARIANTS.length > 1;
+      var headerCells = [
+        el("th", {}, ["Last Name"]),
+        el("th", {}, ["First Name"]),
+        el("th", {}, ["Phone"]),
+        el("th", {}, ["Recruiter"]),
+        el("th", {}, ["Date & Time"]),
+        el("th", {}, ["AFQT"])
+      ];
+      if (showTestCol) headerCells.push(el("th", {}, ["Test"]));
+      sectionCodes.forEach(function (code) {
+        headerCells.push(el("th", {}, [code + " %"]));
+      });
+      table.appendChild(el("thead", {}, [el("tr", {}, headerCells)]));
+
+      var tbody = el("tbody");
+      entries.forEach(function (entry) {
+        var parsedDate = new Date(entry.timestamp);
+        var dateStr = isNaN(parsedDate.getTime()) ? (entry.timestamp || "—") : parsedDate.toLocaleString();
+        var rowCells = [
+          el("td", {}, [entry.last_name || "—"]),
+          el("td", {}, [entry.first_name || "—"]),
+          el("td", {}, [entry.phone || "—"]),
+          el("td", {}, [formatRecruiterDisplay(entry.recruiter) || "—"]),
+          el("td", {}, [dateStr]),
+          el("td", { class: "scores-table-num" }, [String(entry.afqt)])
+        ];
+        if (showTestCol) {
+          rowCells.push(el("td", { class: "scores-table-num" }, [String(entry.test_number || 1)]));
+        }
+        sectionCodes.forEach(function (code) {
+          var sec = entry.sections && entry.sections[code];
+          var pct = sec && sec.total ? Math.round((100 * sec.correct) / sec.total) + "%" : "—";
+          rowCells.push(el("td", { class: "scores-table-num" }, [pct]));
+        });
+        tbody.appendChild(el("tr", {}, rowCells));
+      });
+      table.appendChild(tbody);
+      tableWrap.appendChild(table);
+      card.appendChild(tableWrap);
+    }
+
+    var backBtn = el("button", { class: "btn" }, ["Back"]);
+    backBtn.addEventListener("click", function () { renderStart(); });
+    card.appendChild(el("div", { class: "btn-row" }, [backBtn]));
+
+    app.appendChild(card);
+  }
+
+  // ---------- Screen: Results ----------
+  function renderResults() {
+    clear(app);
+    setKeyHandler(null);
+    armIdleTimeout();
+    // Already computed and saved to history in finishSection when the last
+    // section ended, so a refresh on the STOP screen in between can't lose it.
+    var results = state.finalResults;
+
+    var card = el("div", { class: "card" });
+    card.appendChild(el("h1", {}, ["Results"]));
+    card.appendChild(el("p", { class: "byline" }, [displayName()]));
+    card.appendChild(el("p", { class: "byline" }, [
+      "Recruiter: " + formatRecruiterDisplay(state.recruiter) +
+      (TEST_VARIANTS.length > 1 ? " · Test " + state.testNumber : "")
+    ]));
+
+    var hero = el("div", { class: "hero" });
+    hero.appendChild(el("div", { class: "hero-value" }, [String(results.aqft)]));
+    hero.appendChild(el("div", { class: "hero-label" }, ["Projected AFQT Score"]));
+    hero.appendChild(el("div", { class: "hero-sub" }, [
+      "Projected on the full-length ASVAB scale"
+    ]));
+    card.appendChild(hero);
+
+    var meters = el("div", { class: "meter-list" });
+    QUESTIONS.sections.forEach(function (sec) {
+      var r = results.byCode[sec.code];
+      var name = parseSectionTitle(sec.title).name;
+      var band = statusBand(r.pct);
+
+      var track = el("div", { class: "meter-track" });
+      track.appendChild(el("div", {
+        class: "meter-fill status-fill-" + band.key,
+        style: "width:" + r.pct.toFixed(0) + "%"
+      }));
+
+      var footBits = [
+        el("span", { class: "status-dot status-fill-" + band.key }),
+        el("span", {}, [band.label])
+      ];
+      if (r.unanswered > 0) {
+        footBits.push(el("span", { class: "meter-unanswered" }, [r.unanswered + " unanswered"]));
+      }
+
+      meters.appendChild(el("div", { class: "meter-row" }, [
+        el("div", { class: "meter-head" }, [
+          el("div", { class: "meter-name" }, [boldedName(name)]),
+          el("div", { class: "meter-frac" }, [r.correct + " / " + r.total])
+        ]),
+        track,
+        el("div", { class: "meter-foot" }, footBits)
+      ]));
+    });
+    card.appendChild(meters);
+
+    var overallStat = el("div", { class: "overall-stat" }, [
+      el("div", { class: "overall-stat-value" }, [Math.round(results.overallPct) + "%"]),
+      el("div", { class: "overall-stat-label" }, ["Overall"])
+    ]);
+    card.appendChild(overallStat);
+
+    card.appendChild(renderM2SCard());
+    var noteForm = renderRecruiterNoteForm();
+    card.appendChild(noteForm);
+
+    var restartBtn = el("button", { class: "btn" }, ["Start New Test"]);
+    restartBtn.addEventListener("click", function () {
+      noteForm.saveNow();
+      renderStart();
+    });
+    card.appendChild(el("div", { class: "btn-row" }, [restartBtn]));
+
+    app.appendChild(card);
+  }
+
+  // ---------- Boot ----------
+  loadData(renderStart);
+
+  // This is used as a home-screen app on an iPad -- an edge-swipe "back"
+  // gesture (or a stray back button) would otherwise navigate away from
+  // the SPA entirely, losing all in-progress test state. There's nothing
+  // to go "back" to within this single-page app, so every back attempt is
+  // absorbed: a history entry is pushed immediately, and popstate re-pushes
+  // one every time, so the trap never runs out and never needs a second
+  // back-press to exit (which would just leave the tab open with the old
+  // screen still rendered -- exactly what an unattended kiosk needs).
+  history.pushState(null, "", location.href);
+  window.addEventListener("popstate", function () {
+    history.pushState(null, "", location.href);
+  });
+
+  // Catch up any results that failed to sync in a previous session (kiosk
+  // closed/reloaded while still offline), whenever connectivity returns,
+  // and periodically as a safety net in case the "online" event doesn't
+  // fire reliably on every network transition.
+  if (navigator.onLine) flushPendingSyncQueue();
+  window.addEventListener("online", flushPendingSyncQueue);
+  setInterval(function () {
+    if (navigator.onLine) flushPendingSyncQueue();
+  }, PENDING_SYNC_RETRY_MS);
+})();
+
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(function () {});
+  }
+</script>
 </body>
 </html>

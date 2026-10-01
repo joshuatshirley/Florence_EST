@@ -14,8 +14,8 @@
  *        Execute as: Me
  *        Who has access: Anyone
  *   4. Authorize when prompted, then copy the resulting web app URL
- *      (ends in /exec) into RESULTS_WEBHOOK_URL in
- *      est-kiosk-standalone.html.
+ *      (ends in /exec) into resultsWebhookUrl in index.html's
+ *      window.EST_CONFIG block.
  *
  * The kiosk POSTs JSON as Content-Type: text/plain (not
  * application/json) specifically to avoid a CORS preflight -- Apps
@@ -72,7 +72,7 @@ var SECTION_NAMES = {
   MK: "Mathematics Knowledge"
 };
 // Section order + thresholds match the kiosk's own statusBand() in
-// est-kiosk-standalone.html -- keep these in sync if that ever changes.
+// index.html -- keep these in sync if that ever changes.
 var SECTION_ORDER = ["WK", "AR", "PC", "MK"];
 
 var HEADER_ROW = [
@@ -210,7 +210,7 @@ function notifyResult(data) {
 }
 
 // Same 70%/40% thresholds as the kiosk's own statusBand() in
-// est-kiosk-standalone.html, so this email reads the same as what the
+// index.html, so this email reads the same as what the
 // recruiter saw live on the device.
 function statusBand(section) {
   var pct = section.total ? (100 * section.correct) / section.total : 0;

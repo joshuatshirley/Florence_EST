@@ -1,7 +1,7 @@
 {
   "name": "Florence Practice ASVAB (EST)",
   "short_name": "Florence EST",
-  "start_url": "./est-kiosk-standalone.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
