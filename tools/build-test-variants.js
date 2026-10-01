@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Merges question-bank/{wk,ar,pc,mk}_bank.json into
- * est-kiosk-standalone.html's window.__EST_STANDALONE__.testVariants.
+ * Merges question-bank/{wk,ar,pc,mk}_bank.json into question-data.js's
+ * window.__EST_STANDALONE__.testVariants.
  *
- * Test 1 (index 0) is always kept as whatever's currently embedded in
- * the HTML (the hand-curated original set) -- this script only APPENDS
- * new variants built from the bank files, using each bank's "tests"
- * array in order. It does not touch test 1's content.
+ * Test 1 (index 0) is always kept as whatever's currently in that file
+ * (the hand-curated original set) -- this script only APPENDS new
+ * variants built from the bank files, using each bank's "tests" array
+ * in order. It does not touch test 1's content.
  *
  * Each bank's questions carry their own "n" numbering already (see the
  * schema each generation agent was given); this script trusts that and
@@ -17,16 +17,17 @@
  *          i.e. tests 2-5). Banks may contain more than this many test
  *          arrays (spares); only the first `count` are used from each.
  *
- * After running: re-check est-kiosk-standalone.html's script syntax,
- * bump sw.js's CACHE_NAME (this changes a precached file), and review
- * a sample of the new content before committing.
+ * After running: re-check question-data.js's syntax (e.g. `node -e
+ * "require('./question-data.js')"` with a stubbed `window`), bump
+ * sw.js's CACHE_NAME (this changes a precached file), and review a
+ * sample of the new content before committing.
  */
 
 var fs = require("fs");
 var path = require("path");
 
 var ROOT = path.join(__dirname, "..");
-var HTML_PATH = path.join(ROOT, "est-kiosk-standalone.html");
+var DATA_PATH = path.join(ROOT, "question-data.js");
 var BANK_DIR = path.join(ROOT, "question-bank");
 
 var COUNT = parseInt(process.argv[2], 10) || 4;
@@ -42,9 +43,9 @@ function readJson(p) {
 }
 
 function main() {
-  var html = fs.readFileSync(HTML_PATH, "utf8");
-  var m = html.match(/window\.__EST_STANDALONE__ = (\{[\s\S]*?\n\};)/);
-  if (!m) throw new Error("Could not find window.__EST_STANDALONE__ blob in " + HTML_PATH);
+  var src = fs.readFileSync(DATA_PATH, "utf8");
+  var m = src.match(/window\.__EST_STANDALONE__ = (\{[\s\S]*?\n\};)/);
+  if (!m) throw new Error("Could not find window.__EST_STANDALONE__ blob in " + DATA_PATH);
 
   var data;
   eval("data = " + m[1].replace(/;\s*$/, ""));
@@ -92,10 +93,10 @@ function main() {
     "  scoring: " + JSON.stringify(data.scoring) + "\n" +
     "};";
 
-  var newHtml = html.slice(0, m.index) + newBlob + html.slice(m.index + m[0].length);
-  fs.writeFileSync(HTML_PATH, newHtml, "utf8");
+  var newSrc = src.slice(0, m.index) + newBlob + src.slice(m.index + m[0].length);
+  fs.writeFileSync(DATA_PATH, newSrc, "utf8");
 
-  console.log("Wrote " + newVariants.length + " test variants (1 original + " + COUNT + " generated) to " + HTML_PATH);
+  console.log("Wrote " + newVariants.length + " test variants (1 original + " + COUNT + " generated) to " + DATA_PATH);
   newVariants.forEach(function (v, idx) {
     var counts = v.sections.map(function (s) { return s.code + ":" + s.questions.length; }).join(" ");
     console.log("  Test " + (idx + 1) + " -- " + counts);
