@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- This file's URL used to BE the kiosk; it's now just a redirect shim
+       so anyone with it bookmarked, or added to a home screen before the
+       rename to index.html, doesn't hit a 404. New installs never get
+       this path at all -- see index.html. -->
+  <meta http-equiv="refresh" content="0; url=./">
+  <title>Redirecting…</title>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0b1b2b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Florence EST">
+  <link rel="apple-touch-icon" href="./icons/icon-180.png">
+</head>
+<body>
+  <p>This link has moved. If you are not redirected automatically,
+  <a href="./">open the test</a>.</p>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js").catch(function () {});
+    }
+  </script>
+</body>
+</html>

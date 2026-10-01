@@ -36,7 +36,9 @@
        to one Google account and can't be shared across stations.
    ============================================================ */
 window.EST_CONFIG = {
-  // Shown in the Recruiter dropdown. This deployment is shared across
+  // Shown in the Recruiting Station dropdown (labeled that way in this
+  // deployment, not "Recruiter", since it holds station names). This
+  // deployment is shared across
   // multiple stations (each station's own commander picks their station
   // name here instead of an individual recruiter), so usage can be told
   // apart by station in the results Sheet/dashboard without needing a
@@ -931,14 +933,14 @@ input.input-error, select.input-error {
     var phoneInput = el("input", { type: "tel", id: "phone", placeholder: "Phone number" });
     card.appendChild(phoneInput);
 
-    card.appendChild(el("label", { class: "field-label" }, ["Recruiter: *"]));
+    card.appendChild(el("label", { class: "field-label" }, ["Recruiting Station: *"]));
     var recruiterSelect = el("select", { id: "recruiterSelect" });
-    recruiterSelect.appendChild(el("option", { value: "", disabled: "disabled", selected: "selected" }, ["Select Recruiter"]));
+    recruiterSelect.appendChild(el("option", { value: "", disabled: "disabled", selected: "selected" }, ["Select Recruiting Station"]));
     RECRUITERS.forEach(function (r) {
       recruiterSelect.appendChild(el("option", { value: r }, [r]));
     });
     card.appendChild(recruiterSelect);
-    var recruiterError = el("div", { class: "field-error" }, ["Recruiter is required."]);
+    var recruiterError = el("div", { class: "field-error" }, ["Recruiting Station is required."]);
     card.appendChild(recruiterError);
 
     // Only shown once more than one variant exists -- a single-option
@@ -1642,7 +1644,7 @@ input.input-error, select.input-error {
     var card = el("div", { class: "card" });
     card.appendChild(el("h1", {}, ["Saved Scores"]));
     card.appendChild(el("p", { class: "byline" }, [
-      showAll ? "All recruiters" : "Recruiter: " + formatRecruiterDisplay(recruiter)
+      showAll ? "All recruiting stations" : "Recruiting Station: " + formatRecruiterDisplay(recruiter)
     ]));
     card.appendChild(el("p", { class: "byline" }, [
       entries.length + (entries.length === 1 ? " result" : " results") + " saved on this device"
@@ -1650,7 +1652,7 @@ input.input-error, select.input-error {
 
     if (!entries.length) {
       card.appendChild(el("div", { class: "instructions-box" }, [
-        "No saved scores yet" + (showAll ? "." : " for this recruiter.")
+        "No saved scores yet" + (showAll ? "." : " for this recruiting station.")
       ]));
     } else {
       // Section codes/order come from QUESTIONS itself (WK, AR, PC, MK) so
@@ -1664,7 +1666,7 @@ input.input-error, select.input-error {
         el("th", {}, ["Last Name"]),
         el("th", {}, ["First Name"]),
         el("th", {}, ["Phone"]),
-        el("th", {}, ["Recruiter"]),
+        el("th", {}, ["Recruiting Station"]),
         el("th", {}, ["Date & Time"]),
         el("th", {}, ["AFQT"])
       ];
@@ -1721,7 +1723,7 @@ input.input-error, select.input-error {
     card.appendChild(el("h1", {}, ["Results"]));
     card.appendChild(el("p", { class: "byline" }, [displayName()]));
     card.appendChild(el("p", { class: "byline" }, [
-      "Recruiter: " + formatRecruiterDisplay(state.recruiter) +
+      "Recruiting Station: " + formatRecruiterDisplay(state.recruiter) +
       (TEST_VARIANTS.length > 1 ? " · Test " + state.testNumber : "")
     ]));
 
