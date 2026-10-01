@@ -2,8 +2,7 @@
 
 This is your station's practice ASVAB app. It runs on an iPad, takes about
 40 minutes per applicant, and sends you the scores automatically. You don't
-need to install anything from an app store, and there's nothing to manage —
-if something looks off, just call Joshua.
+need to install anything from an app store, and there's nothing to manage.
 
 ## Putting it on the iPad (one time only)
 
@@ -60,9 +59,3 @@ to open.
 - **If the iPad loses internet mid-test**, nothing breaks — the test keeps
   running locally and the score sends itself once the iPad's back online
   (even if that's not until later).
-
-## If something looks wrong
-
-Call or message Joshua. Don't try to fix it yourself — there's nothing to
-reinstall or reset on your end, and most things that look broken are a
-one-line fix on the back end.
