@@ -10,6 +10,69 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Florence EST">
 <link rel="apple-touch-icon" href="./icons/icon-180.png">
+<script>
+/* ============================================================
+   STATION CONFIG -- edit this block to hand the kiosk off to a
+   different recruiting station. Nothing else in this file should
+   need to change.
+
+   A few things live OUTSIDE this file and can't be pulled into one
+   config object without a build step -- update these by hand too:
+     - The <title> and <meta name="apple-mobile-web-app-title"> tags
+       just above this script. iOS reads the meta tag directly for
+       the home-screen icon label, before any JS runs, so it can't
+       pull from config.
+     - manifest.json's "name" and "short_name".
+     - assets/m2s_qr.png -- a static image baked from m2sSignupUrl
+       below. Changing the URL does not regenerate the picture;
+       re-encode the new URL with any QR generator and overwrite
+       that file, or the printed code will point students to the
+       wrong station's referral link.
+     - apps-script/results-webhook.gs and apps-script/roster-dashboard.gs
+       each have their own SHEET_ID/SHEET_URL/NOTIFY_EMAIL at the top.
+       Every station needs its own Sheet and its own Apps Script
+       deployment of both files -- a deployment's /exec URL is tied
+       to one Google account and can't be shared across stations.
+   ============================================================ */
+window.EST_CONFIG = {
+  // Shown in the Recruiter dropdown, stored "Lastname RANK" so the
+  // list alphabetizes cleanly by surname.
+  recruiters: ["Curless SSG", "Gatling SFC", "Guiler SFC", "Recendez SFC", "Schultz SFC", "Shirley SFC"],
+
+  // This station's Google Apps Script web app (/exec URL) that appends
+  // each result to its Sheet -- see apps-script/results-webhook.gs for
+  // the backend and setup steps. Leave "" to disable server sync
+  // entirely and keep results only in the on-device history.
+  resultsWebhookUrl: "https://script.google.com/macros/s/AKfycbxUnnKIWbxf7x1f4lFQsAueF041-JB8_M5KrPqyvMx3jBrhXf1aWiEANbKT-IUJD1sf/exec",
+
+  // This station's March2Success recruiter referral link (get your own
+  // from march2success.com's recruiter registration -- the mID in the
+  // URL is what ties a student signup back to a specific recruiter).
+  // See the assets/m2s_qr.png note above the object.
+  m2sSignupUrl: "https://march2success.com/register?params=mID164667516%7CShirley",
+
+  // Presets for the optional recruiter next-steps note on the Results
+  // screen. Adjust the wording to match actual station workflow.
+  nextStepsOptions: [
+    "Refer to March2Success",
+    "Schedule ASVAB",
+    "Discuss opportunities with recruiter",
+    "Schedule enlistment"
+  ],
+
+  // Typing this exact last/first name combo on the Start screen opens
+  // the private on-device Saved Scores viewer instead of starting a
+  // test. Change these if a different (or harder to guess) phrase is
+  // wanted.
+  scoresAccessLastName: "check",
+  scoresAccessFirstName: "scores",
+
+  // Minutes of inactivity before the kiosk resets to the Start screen.
+  // Only takes effect once a result has already been sent (the final
+  // STOP screen and Results screen) -- never mid-test.
+  idleTimeoutMinutes: 30
+};
+</script>
 <style>
 :root {
   --bg: #0b1b2b;
@@ -653,33 +716,25 @@ window.__EST_STANDALONE__ = {
   var QUESTIONS = null;     // the currently-selected variant; reassigned when Start Test is clicked
   var SCORING = null;       // shared across all variants -- same norm tables regardless of content
 
-  var RECRUITERS = ["Curless SSG", "Gatling SFC", "Guiler SFC", "Recendez SFC", "Schultz SFC", "Shirley SFC"];
+  // Per-station values live in window.EST_CONFIG, set in a <script> near
+  // the top of <head> -- see the comment there for what to edit when
+  // handing this kiosk off to a different station.
+  var CONFIG = window.EST_CONFIG;
+
+  var RECRUITERS = CONFIG.recruiters;
 
   // Presets for the optional recruiter next-steps note on the Results
-  // screen. Adjust the wording to match actual station workflow whenever.
-  var NEXT_ACTION_OPTIONS = [
-    "Refer to March2Success",
-    "Schedule ASVAB",
-    "Discuss opportunities with recruiter",
-    "Schedule enlistment"
-  ];
+  // screen.
+  var NEXT_ACTION_OPTIONS = CONFIG.nextStepsOptions;
 
-  var SCORES_ACCESS_LAST = "check";
-  var SCORES_ACCESS_FIRST = "scores";
+  var SCORES_ACCESS_LAST = CONFIG.scoresAccessLastName;
+  var SCORES_ACCESS_FIRST = CONFIG.scoresAccessFirstName;
 
-  // Google Apps Script web app (/exec URL) that appends each result to a
-  // Sheet -- see apps-script/results-webhook.gs for the backend and setup
-  // steps. Best-effort sync on top of the local cookie history, which stays
-  // the durable record if this is empty or the device is offline.
-  var RESULTS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxUnnKIWbxf7x1f4lFQsAueF041-JB8_M5KrPqyvMx3jBrhXf1aWiEANbKT-IUJD1sf/exec";
+  // Best-effort sync on top of the local cookie history, which stays the
+  // durable record if this is empty or the device is offline.
+  var RESULTS_WEBHOOK_URL = CONFIG.resultsWebhookUrl;
 
-  // March2Success's free study site does not support bulk/roster account
-  // creation (confirmed against their registration page) -- every account,
-  // including this recruiter's own, is created one at a time through their
-  // form. This referral link pre-tags the recruiter (mID param) so a
-  // student who registers through it is automatically associated with this
-  // station without having to know or type a station ID.
-  var M2S_SIGNUP_URL = "https://march2success.com/register?params=mID164667516%7CShirley";
+  var M2S_SIGNUP_URL = CONFIG.m2sSignupUrl;
 
   // Keyboard shortcuts on the question screen only: A-D/1-4 pick an answer,
   // Enter advances. Exactly one handler is ever attached -- each screen
@@ -692,13 +747,13 @@ window.__EST_STANDALONE__ = {
     if (fn) document.addEventListener("keydown", fn);
   }
 
-  // Auto-reset to the Start screen after 30 minutes of inactivity, but only
-  // once results are already in (the final STOP screen and Results screen)
-  // -- never mid-test, since a mid-test reset would silently discard a
-  // test-taker's in-progress answers. This is a kiosk left unattended after
-  // a completed test, not a distraction-mid-question guard (the per-section
-  // timer already forces progress there).
-  var IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+  // Auto-reset to the Start screen after CONFIG.idleTimeoutMinutes of
+  // inactivity, but only once results are already in (the final STOP
+  // screen and Results screen) -- never mid-test, since a mid-test reset
+  // would silently discard a test-taker's in-progress answers. This is a
+  // kiosk left unattended after a completed test, not a distraction-mid-
+  // question guard (the per-section timer already forces progress there).
+  var IDLE_TIMEOUT_MS = CONFIG.idleTimeoutMinutes * 60 * 1000;
   var idleTimeoutHandle = null;
   var idleTimeoutArmed = false;
 
@@ -1512,9 +1567,10 @@ window.__EST_STANDALONE__ = {
   }
 
   // Shown on the Results screen so the test-taker can scan/tap through to a
-  // free March2Success account (M2S has no bulk/roster enrollment -- see
-  // M2S_SIGNUP_URL comment). Opens in a new tab/window so the kiosk's own
-  // state is never left mid-flow.
+  // free March2Success account (M2S has no bulk/roster enrollment, so each
+  // student still registers individually -- this just pre-tags the
+  // recruiter). Opens in a new tab/window so the kiosk's own state is
+  // never left mid-flow.
   function renderM2SCard() {
     var wrap = el("div", { class: "m2s-card" });
     wrap.appendChild(el("div", { class: "m2s-title" }, ["Keep practicing -- it's free"]));
