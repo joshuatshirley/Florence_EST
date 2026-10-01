@@ -2,8 +2,7 @@
 
 This is your station's practice ASVAB app. It runs on an iPad, takes about
 40 minutes per applicant, and sends you the scores automatically. You don't
-need to install anything from an app store, and there's nothing to manage —
-if something looks off, just call Joshua.
+need to install anything from an app store, and there's nothing to manage.
 
 ## Putting it on the iPad (one time only)
 
