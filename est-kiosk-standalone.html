@@ -36,9 +36,15 @@
        to one Google account and can't be shared across stations.
    ============================================================ */
 window.EST_CONFIG = {
-  // Shown in the Recruiter dropdown, stored "Lastname RANK" so the
-  // list alphabetizes cleanly by surname.
-  recruiters: ["Curless SSG", "Gatling SFC", "Guiler SFC", "Recendez SFC", "Schultz SFC", "Shirley SFC"],
+  // Shown in the Recruiter dropdown. This deployment is shared across
+  // multiple stations (each station's own commander picks their station
+  // name here instead of an individual recruiter), so usage can be told
+  // apart by station in the results Sheet/dashboard without needing a
+  // separate backend per station. formatRecruiterDisplay() below expects
+  // single-recruiter entries as "Lastname RANK" (so results read "RANK
+  // Lastname") but passes plain single-word values like these through
+  // unchanged, so station names display exactly as typed here.
+  recruiters: ["Florence", "Sumter", "Georgetown", "Myrtle Beach"],
 
   // This station's Google Apps Script web app (/exec URL) that appends
   // each result to its Sheet -- see apps-script/results-webhook.gs for
@@ -845,12 +851,17 @@ input.input-error, select.input-error {
 
   // RECRUITERS is stored "Lastname RANK" (alphabetizes cleanly by surname in
   // the dropdown); results display it rank-first, e.g. "Shirley SFC" -> "SFC
-  // Shirley".
+  // Shirley". Only reformats when the last word is written in ALL CAPS --
+  // matching every rank abbreviation used in this app (SSG, SFC, 1SG, ...)
+  // -- so a multi-word value that ISN'T "Lastname RANK", like a station
+  // name ("Myrtle Beach") on a deployment shared across stations, passes
+  // through unchanged instead of getting flipped into "Beach Myrtle".
   function formatRecruiterDisplay(value) {
     if (!value) return value;
     var parts = value.trim().split(/\s+/);
     if (parts.length < 2) return value;
     var rank = parts[parts.length - 1];
+    if (rank !== rank.toUpperCase() || !/[A-Z]/.test(rank)) return value;
     var name = parts.slice(0, -1).join(" ");
     return rank + " " + name;
   }
